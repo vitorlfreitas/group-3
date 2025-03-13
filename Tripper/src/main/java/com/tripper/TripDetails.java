@@ -24,4 +24,3 @@ public class TripDetails {
         return "TripDetails [locations=" + locations + ", travelMonth=" + travelMonth + "]";
     }
 }
-

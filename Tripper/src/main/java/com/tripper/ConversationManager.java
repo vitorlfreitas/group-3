@@ -12,11 +12,6 @@ public class ConversationManager {
                 + "'I'm planning a summer trip visiting Paris in June, then London, and finishing in Dublin.'";
     }
 
-    public String confirmTripDetails(String tripDetails) {
-        return "Thanks for sharing! Just to be sure, you're planning the following trip:\n"
-                + tripDetails + "\nIs that correct? (yes/no)";
-    }
-
     public String friendlyResponse(String dynamicResponse) {
         return "Great news! Based on your trip details, here's what I recommend:\n"
                 + dynamicResponse;
