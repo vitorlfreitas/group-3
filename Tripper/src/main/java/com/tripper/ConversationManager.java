@@ -8,8 +8,7 @@ public class ConversationManager {
     }
 
     public String askForTripDetails() {
-        return "Could you please tell me a bit about your trip? For example, you might say:\n"
-                + "'I'm planning a summer trip visiting Paris in June, then London, and finishing in Dublin.'";
+        return "Could you please tell me a bit about your trip?";
     }
 
     public String friendlyResponse(String dynamicResponse) {

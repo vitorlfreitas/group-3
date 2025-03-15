@@ -46,6 +46,13 @@ public class ConversationController {
                     String tripDetails = prompt(conversationManager.askForTripDetails());
                     if (!tripDetails.isEmpty()) {
                         state.setTripDetails(tripDetails);
+
+                        // Instantiate your NLPInputParser
+                        NLPInputParser nlpParser = new NLPInputParser();
+                        TripDetails parsedDetails = nlpParser.parseTripDetails(tripDetails);
+
+                        typePrint("Parsed Trip Details: " + parsedDetails, 5);
+
                         currentState = State.CONFIRM_DETAILS;
                     } else {
                         typePrint("Trip details cannot be empty. Please try again.", 0);
