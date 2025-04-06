@@ -33,7 +33,7 @@ class PDFGeneratorTest {
 
     @Test
     void testGenerateChecklist_createsPDFFile() {
-        ConversationState mockState = new ConversationState("Karen");
+        ConversationState mockState = new ConversationState();
         String[] essentials = {"Shirt", "Pants"};
         String[] recommendations = {"Jacket"};
         String[] optional = {"Hat"};
@@ -48,7 +48,7 @@ class PDFGeneratorTest {
 
     @Test
     void testGenerateChecklist_containsExpectedText() throws IOException {
-        ConversationState mockState = new ConversationState("Thales");
+        ConversationState mockState = new ConversationState();
         String[] essentials = {"T-shirt"};
         String[] recommendations = {"Scarf"};
         String[] optional = {"Flip flops"};
