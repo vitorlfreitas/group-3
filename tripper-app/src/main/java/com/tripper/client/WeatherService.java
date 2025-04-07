@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 public class WeatherService {
 
     // PLEASE DO NOT SHARE YOUR API KEY publicly.
-    private static final String API_KEY = "your-openweather-api-key";
+    private static final String API_KEY = "3546933fd7ea84c81dd36f6faa3dbe9d";
     private static final String BASE_URL = "https://api.openweathermap.org/data/2.5/forecast";
 
     public WeatherResponse getForecastData(String location) {

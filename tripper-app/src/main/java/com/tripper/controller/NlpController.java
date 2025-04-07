@@ -1,12 +1,14 @@
 package com.tripper.controller;
 
 import com.tripper.service.SentenceDetectionService;
+import com.tripper.service.TripChatService;
 import com.tripper.service.TripInfoExtractionService;
 import opennlp.tools.tokenize.SimpleTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -52,5 +54,20 @@ public class NlpController {
         return tripInfoExtractionService.extract(text);
     }
 
+    @Autowired
+    private TripChatService tripChatService;
+
+    @PostMapping("/trip-recommendations")
+    public Map<String, Object> getTripAdvice(@RequestBody Map<String, Object> request) {
+        String name = (String) request.getOrDefault("name", "Traveler");
+        List<String> locations = (List<String>) request.get("locations");
+        List<String> dates = (List<String>) request.get("dates");
+
+        String gptResponse = tripChatService.generateTripAdvice(name, locations, dates);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("recommendations", gptResponse);
+        return response;
+    }
 
 }

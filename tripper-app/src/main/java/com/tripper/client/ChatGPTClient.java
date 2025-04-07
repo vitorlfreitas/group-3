@@ -9,7 +9,7 @@ import java.net.*;
 public class ChatGPTClient {
 
     // DO NOT SHARE OR USE THIS API KEY publicly.
-    private static final String API_KEY = "sk-your-api-key";
+    private static final String API_KEY = "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";
     private static final String API_URL = "https://api.openai.com/v1/chat/completions";
 
     public String getChatResponse(String conversationContext) {
