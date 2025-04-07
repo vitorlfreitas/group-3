@@ -1,8 +1,11 @@
 package com.tripper.controller;
 
+import com.tripper.model.TripChecklistSection;
 import com.tripper.service.SentenceDetectionService;
 import com.tripper.service.TripChatService;
 import com.tripper.service.TripInfoExtractionService;
+import com.tripper.util.GPTResponseParser;
+import com.tripper.util.PDFGenerator;
 import opennlp.tools.tokenize.SimpleTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -69,5 +72,21 @@ public class NlpController {
         response.put("recommendations", gptResponse);
         return response;
     }
+
+    @PostMapping("/generate-structured-pdf")
+    public Map<String, String> createStructuredPdf(@RequestBody Map<String, String> request) {
+        String name = request.getOrDefault("name", "Traveler");
+        String fileName = name + "_StructuredTripChecklist.pdf";
+
+        List<TripChecklistSection> sections = GPTResponseParser.parseFromExampleResponse();
+        PDFGenerator.generateTripChecklistPdf(fileName, name, sections);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Structured PDF generated");
+        response.put("file", fileName);
+        return response;
+    }
+
+
 
 }

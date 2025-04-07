@@ -1,152 +1,77 @@
 package com.tripper.util;
 
-import com.tripper.model.TripDetails;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import com.tripper.model.TripChecklistSection;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import rst.pdfbox.layout.elements.Document;
+import rst.pdfbox.layout.elements.Paragraph;
+import rst.pdfbox.layout.elements.VerticalSpacer;
+import rst.pdfbox.layout.text.Alignment;
 
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
 
 public class PDFGenerator {
 
-    /**
-     * Generates a custom checklist PDF with multiple sections.
-     *
-     * @param fileName       The output file name.
-     * @param userName       The user’s name.
-     * @param tripDetailsStr The raw trip details string.
-     * @param essentialItems List of essential clothing items.
-     * @param recommendations List of recommendations.
-     * @param optionalItems  List of optional items.
-     * @param accessories    List of accessory items.
-     */
-    public static void generateChecklist(String fileName, String userName, String tripDetailsStr,
-                                         String[] essentialItems,
-                                         String[] recommendations,
-                                         String[] optionalItems,
-                                         String[] accessories) {
-        PDDocument document = new PDDocument();
-        try {
-            PDPage page = new PDPage(PDRectangle.A4);
-            document.addPage(page);
-
-            // Load standard fonts
-            PDType1Font fontBold = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
-            PDType1Font fontRegular = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
-
-            PDPageContentStream contentStream = new PDPageContentStream(document, page);
-
-            // Define margins and positions
-            float margin = 50;
-            PDRectangle mediaBox = page.getMediaBox();
-            float yStart = mediaBox.getHeight() - margin;
-            float yPosition = yStart;
-            float leading = 15;
-            float maxWidth = mediaBox.getWidth() - 2 * margin;
-
-            // Draw Title: Personalized Header
-            contentStream.beginText();
-            contentStream.setFont(fontBold, 20);
-            contentStream.newLineAtOffset(margin, yPosition);
-            contentStream.showText("Trip Checklist for " + userName);
-            contentStream.endText();
-            yPosition -= 30;
-
-            // Section: Trip Details
-            yPosition = addSectionHeader(contentStream, "Trip Details:", margin, yPosition, fontBold, 14);
-            yPosition = addParagraph(contentStream, tripDetailsStr, margin + 10, yPosition, fontRegular, 12, maxWidth, leading);
-            yPosition -= 20;
-
-            // Section: Essential Items
-            yPosition = addSectionHeader(contentStream, "Essential Items:", margin, yPosition, fontBold, 14);
-            yPosition = addBulletList(contentStream, essentialItems, margin + 20, yPosition, fontRegular, 12, leading);
-            yPosition -= 20;
-
-            // Section: Recommendations
-            yPosition = addSectionHeader(contentStream, "Recommendations:", margin, yPosition, fontBold, 14);
-            yPosition = addBulletList(contentStream, recommendations, margin + 20, yPosition, fontRegular, 12, leading);
-            yPosition -= 20;
-
-            // Section: Optional Items
-            yPosition = addSectionHeader(contentStream, "Optional Items:", margin, yPosition, fontBold, 14);
-            yPosition = addBulletList(contentStream, optionalItems, margin + 20, yPosition, fontRegular, 12, leading);
-            yPosition -= 20;
-
-            // Section: Accessories
-            yPosition = addSectionHeader(contentStream, "Accessories:", margin, yPosition, fontBold, 14);
-            yPosition = addBulletList(contentStream, accessories, margin + 20, yPosition, fontRegular, 12, leading);
-
-            contentStream.close();
-            document.save(new File(fileName));
-            System.out.println("Custom PDF checklist generated successfully: " + fileName);
+    public static void generateStructuredChecklist(String fileName, String userName, List<TripChecklistSection> sections) {
+        try (OutputStream out = new FileOutputStream(fileName)) {
+            generateTripChecklistPdf(fileName, userName, sections);
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                document.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
-    // Adds a section header and returns the new y position.
-    private static float addSectionHeader(PDPageContentStream contentStream, String header,
-                                          float margin, float yPosition, PDType1Font font, int fontSize) throws IOException {
-        contentStream.beginText();
-        contentStream.setFont(font, fontSize);
-        contentStream.newLineAtOffset(margin, yPosition);
-        contentStream.showText(header);
-        contentStream.endText();
-        return yPosition - 20;
-    }
+    public static void generateTripChecklistPdf(String fileName, String userName, List<TripChecklistSection> sections) {
+        try (OutputStream out = new FileOutputStream(fileName)) {
+            Document document = new Document(50, 50, 50, 50);
 
-    // Adds a bullet list; returns the new y position after adding the list.
-    private static float addBulletList(PDPageContentStream contentStream, String[] items,
-                                       float xPosition, float yPosition, PDType1Font font, int fontSize, float leading) throws IOException {
-        for (String item : items) {
-            contentStream.beginText();
-            contentStream.setFont(font, fontSize);
-            contentStream.newLineAtOffset(xPosition, yPosition);
-            contentStream.showText("• " + item);
-            contentStream.endText();
-            yPosition -= leading;
-        }
-        return yPosition;
-    }
+            // Title
+            Paragraph title = new Paragraph();
+            title.addText("Travel Checklist for " + userName, 20, PDType1Font.HELVETICA_BOLD);
+            title.setAlignment(Alignment.Center);
+            document.add(title);
+            document.add(new VerticalSpacer(20));
 
-    // Utility method to add text with automatic wrapping. Returns the new y position.
-    private static float addParagraph(PDPageContentStream contentStream, String text, float xPosition, float yPosition,
-                                      PDType1Font font, int fontSize, float maxWidth, float leading) throws IOException {
-        String[] words = text.split("\\s+");
-        StringBuilder line = new StringBuilder();
-        contentStream.beginText();
-        contentStream.setFont(font, fontSize);
-        contentStream.newLineAtOffset(xPosition, yPosition);
-        for (String word : words) {
-            String testLine = line.length() == 0 ? word : line + " " + word;
-            float textWidth = font.getStringWidth(testLine) / 1000 * fontSize;
-            if (textWidth > maxWidth) {
-                contentStream.showText(line.toString());
-                contentStream.endText();
-                yPosition -= leading;
-                contentStream.beginText();
-                contentStream.setFont(font, fontSize);
-                contentStream.newLineAtOffset(xPosition, yPosition);
-                line = new StringBuilder(word);
-            } else {
-                if (line.length() > 0) {
-                    line.append(" ");
+            for (TripChecklistSection section : sections) {
+                Paragraph city = new Paragraph();
+                city.addText(section.getCityName(), 16, PDType1Font.HELVETICA_BOLD);
+                document.add(city);
+
+                if (section.getWeather() != null && !section.getWeather().isEmpty()) {
+                    Paragraph weather = new Paragraph();
+                    weather.addText("Weather: " + section.getWeather(), 12, PDType1Font.HELVETICA_OBLIQUE);
+                    document.add(weather);
                 }
-                line.append(word);
+
+                document.add(new VerticalSpacer(10));
+
+                addBulletSection(document, "Clothing:", section.getClothing());
+                addBulletSection(document, "Accessories:", section.getAccessories());
+                addBulletSection(document, "Optional Items:", section.getOptionalItems());
+
+                document.add(new VerticalSpacer(20));
             }
+
+            document.save(out);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        contentStream.showText(line.toString());
-        contentStream.endText();
-        return yPosition - leading;
+    }
+
+    private static void addBulletSection(Document document, String title, List<String> items) throws IOException {
+        if (items != null && !items.isEmpty()) {
+            Paragraph label = new Paragraph();
+            label.addText(title, 13, PDType1Font.HELVETICA_BOLD);
+            document.add(label);
+
+            for (String item : items) {
+                Paragraph itemPara = new Paragraph();
+                itemPara.addText("• " + item, 12, PDType1Font.HELVETICA);
+                document.add(itemPara);
+            }
+
+            document.add(new VerticalSpacer(10));
+        }
     }
 }

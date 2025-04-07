@@ -25,4 +25,6 @@ public class TripChatService {
 
         return chatGPTClient.getChatResponse(prompt.toString());
     }
+
+
 }

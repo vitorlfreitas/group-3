@@ -7,14 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/trip")
+@RequestMapping("/trip-planner")
 public class TripPlannerController {
 
     @Autowired
     private TripPlannerService tripPlannerService;
 
-    @PostMapping("/plan")
-    public TripResponse planTrip(@RequestBody TripRequest request) {
+    @PostMapping
+    public TripResponse handleTripPlanning(@RequestBody TripRequest request) {
         return tripPlannerService.processTripRequest(request);
     }
 }
