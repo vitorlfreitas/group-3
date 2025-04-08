@@ -36,80 +36,95 @@
 		</repository>
 	</repositories>
 	<dependencies>
+
+		<!-- Spring Boot Starter for building web applications -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!-- Spring Boot Starter for WebSocket support -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
+
+		<!-- Spring Boot DevTools for hot-reloading during development -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+
+		<!-- Lombok for reducing boilerplate code (e.g., getters/setters) -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+
+		<!-- Spring Boot Starter for testing (unit and integration tests) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 
+		<!-- SLF4J API for logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>2.0.16</version>
-
 		</dependency>
 
-		<!-- Gson -->
+		<!-- Gson for JSON serialization and deserialization -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.10.1</version>
 		</dependency>
 
-		<!-- Apache OpenNLP -->
+		<!-- Apache OpenNLP for natural language processing -->
 		<dependency>
 			<groupId>org.apache.opennlp</groupId>
 			<artifactId>opennlp-tools</artifactId>
 			<version>2.5.3</version>
 		</dependency>
 
-		<!-- PDFBox -->
+		<!-- Apache PDFBox for working with PDF files -->
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
 			<version>2.0.33</version>
 		</dependency>
 
+		<!-- PDFBox Layout for advanced PDF layout and styling -->
 		<dependency>
 			<groupId>com.github.ralfstuckert.pdfbox-layout</groupId>
 			<artifactId>pdfbox2-layout</artifactId>
 			<version>1.0.1</version>
 		</dependency>
 
+		<!-- Jakarta Persistence API for JPA annotations and interfaces -->
 		<dependency>
 			<groupId>jakarta.persistence</groupId>
 			<artifactId>jakarta.persistence-api</artifactId>
 			<version>3.1.0</version>
 		</dependency>
 
+		<!-- Spring Boot Starter for JPA and database interaction -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
+		<!-- H2 Database for in-memory database during development -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-
-
 
 	</dependencies>
 
