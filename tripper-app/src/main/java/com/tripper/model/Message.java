@@ -13,9 +13,12 @@ public class Message {
     private Long id;
 
     @Setter
-    private String sender; // "user" or "assistant"
+    private String sender;
+
     @Setter
+    @Column(columnDefinition = "TEXT")
     private String content;
+
     private LocalDateTime timestamp = LocalDateTime.now();
 
     @Setter
