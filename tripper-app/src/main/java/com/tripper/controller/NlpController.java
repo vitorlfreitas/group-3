@@ -57,21 +57,21 @@ public class NlpController {
         return tripInfoExtractionService.extract(text);
     }
 
-    @Autowired
-    private TripChatService tripChatService;
-
-    @PostMapping("/trip-recommendations")
-    public Map<String, Object> getTripAdvice(@RequestBody Map<String, Object> request) {
-        String name = (String) request.getOrDefault("name", "Traveler");
-        List<String> locations = (List<String>) request.get("locations");
-        List<String> dates = (List<String>) request.get("dates");
-
-        String gptResponse = tripChatService.generateTripAdvice(name, locations, dates);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("recommendations", gptResponse);
-        return response;
-    }
+//    @Autowired
+//    private TripChatService tripChatService;
+//
+//    @PostMapping("/trip-recommendations")
+//    public Map<String, Object> getTripAdvice(@RequestBody Map<String, Object> request) {
+//        String name = (String) request.getOrDefault("name", "Traveler");
+//        List<String> locations = (List<String>) request.get("locations");
+//        List<String> dates = (List<String>) request.get("dates");
+//
+//        String gptResponse = tripChatService.generateTripAdvice(name, locations, dates);
+//
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("recommendations", gptResponse);
+//        return response;
+//    }
 
     @PostMapping("/generate-structured-pdf")
     public Map<String, String> createStructuredPdf(@RequestBody Map<String, String> request) {

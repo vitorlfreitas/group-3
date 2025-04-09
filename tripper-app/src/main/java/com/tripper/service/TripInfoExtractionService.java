@@ -1,83 +1,94 @@
 package com.tripper.service;
 
-import opennlp.tools.postag.POSModel;
-import opennlp.tools.postag.POSTaggerME;
-import opennlp.tools.tokenize.SimpleTokenizer;
-import org.springframework.core.io.ClassPathResource;
+import com.tripper.client.GoogleMapsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
 public class TripInfoExtractionService {
 
-    private final POSTaggerME posTagger;
-    private final SimpleTokenizer tokenizer;
+    @Autowired
+    private GoogleMapsService googleMapsService;
 
     private final List<String> MONTHS = Arrays.asList(
             "january", "february", "march", "april", "may", "june",
             "july", "august", "september", "october", "november", "december"
     );
 
-    private final Pattern DATE_PATTERN = Pattern.compile("(?i)(next week|this week|\\d{1,2}/\\d{1,2}|\\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\\b)");
-
     private final List<String> DATE_PHRASES = Arrays.asList(
             "next week", "this week", "next month", "this month", "this summer", "next summer"
     );
 
-
-    public TripInfoExtractionService() {
-        try {
-            InputStream modelIn = new ClassPathResource("models/opennlp-en-ud-ewt-pos-1.2-2.5.0.bin").getInputStream();
-            POSModel model = new POSModel(modelIn);
-            this.posTagger = new POSTaggerME(model);
-            this.tokenizer = SimpleTokenizer.INSTANCE;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load POS model", e);
-        }
-    }
+    private final Pattern DATE_PATTERN = Pattern.compile(
+            "(?i)(next week|this week|\\d{1,2}/\\d{1,2}|\\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\\b)"
+    );
 
     public Map<String, Object> extract(String text) {
         List<String> locations = new ArrayList<>();
-        List<String> dates = new ArrayList<>();
+        Set<String> dates = new HashSet<>();
 
-        String[] tokens = tokenizer.tokenize(text);
+        // Normalize and split text
+        String[] words = text.split("\\s+");
+        Set<String> stopWords = Set.of("to", "in", "at", "on", "from", "the");
+        Set<String> verbStarters = Set.of("am", "is", "are", "was", "were", "have", "had", "planning");
 
-        // Basic capitalized location matcher (could be improved with actual list)
-        for (String token : tokens) {
-            if (Character.isUpperCase(token.charAt(0))) {
-                // Naive location filter to avoid picking names like "I", "I'm", etc.
-                if (!token.equals("I") && !token.equals("I'm") && token.length() > 2) {
-                    locations.add(token);
+        // Try sliding window (3 words, 2 words, 1 word)
+        for (int i = 0; i < words.length; i++) {
+            for (int window = 3; window >= 1; window--) {
+                if (i + window > words.length) continue;
+
+                String rawCandidate = String.join(" ", Arrays.copyOfRange(words, i, i + window));
+                String cleaned = rawCandidate.replaceAll("[^a-zA-Z\\s]", "").trim(); // remove punctuation
+
+                // Remove leading stop words
+                String[] cleanedWords = cleaned.split("\\s+");
+                if (cleanedWords.length == 0) continue;
+
+
+                int skip = 0;
+                while (skip < cleanedWords.length && stopWords.contains(cleanedWords[skip].toLowerCase())) {
+                    skip++;
+                }
+
+                if (skip >= cleanedWords.length) continue;
+
+                String finalCandidate = String.join(" ", Arrays.copyOfRange(cleanedWords, skip, cleanedWords.length));
+
+                String[] candidateWords = finalCandidate.split("\\s+");
+
+                if (verbStarters.contains(candidateWords[0].toLowerCase())) continue;
+
+                if (
+                        finalCandidate.length() < 3 ||
+                                locations.contains(finalCandidate) ||
+                                stopWords.contains(candidateWords[candidateWords.length - 1].toLowerCase())
+                ) continue;
+
+                if (googleMapsService.isValidLocation(finalCandidate)) {
+                    locations.add(finalCandidate);
                 }
             }
+        }
 
-            // Date regex (e.g., months, "next week", etc.)
-            if (MONTHS.contains(token.toLowerCase()) || DATE_PATTERN.matcher(token).find()) {
-                dates.add(token);
+        // Dates: keywords and regex
+        String lower = text.toLowerCase();
+        for (String phrase : DATE_PHRASES) {
+            if (lower.contains(phrase)) dates.add(phrase);
+        }
+
+        for (String word : words) {
+            if (MONTHS.contains(word.toLowerCase()) || DATE_PATTERN.matcher(word).find()) {
+                dates.add(word);
             }
         }
 
         Map<String, Object> result = new HashMap<>();
-
-        // Scan the full sentence for date phrases
-        String lowerText = text.toLowerCase();
-        for (String phrase : DATE_PHRASES) {
-            if (lowerText.contains(phrase)) {
-                dates.add(phrase);
-            }
-        }
-
-        // Remove overlap (e.g., "August" showing as both)
-        locations.removeIf(dates::contains);
-
         result.put("locations", locations);
-        result.put("dates", dates);
-
+        result.put("dates", new ArrayList<>(dates));
         return result;
     }
-
 
 }

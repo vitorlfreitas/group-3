@@ -1,5 +1,6 @@
 package com.tripper.controller;
 
+import com.tripper.dto.OutgoingMessageDTO;
 import com.tripper.model.Message;
 import com.tripper.model.MessageDTO;
 import com.tripper.service.ConversationService;
@@ -26,6 +27,9 @@ public class ChatSocketController {
     @MessageMapping("/chat.send") // Maps incoming WebSocket messages to this method
     public void handleChat(@Payload MessageDTO incomingMessage) {
 
+        // Log the incoming message for debugging
+        System.out.println("Received message: " + incomingMessage.getContent());
+
         // Extract conversation ID from the incoming message
         Long conversationId = incomingMessage.getConversationId();
 
@@ -47,7 +51,10 @@ public class ChatSocketController {
         // Fetch the full updated conversation history
         List<Message> messages = conversationService.getConversationMessages(conversationId);
 
-        // Send the updated conversation history to the WebSocket topic for this conversation
-        messagingTemplate.convertAndSend("/topic/chat/" + conversationId, messages);
+        List<OutgoingMessageDTO> dtoMessages = messages.stream()
+                .map(OutgoingMessageDTO::from)
+                .toList();
+
+        messagingTemplate.convertAndSend("/topic/chat/" + conversationId, dtoMessages);
     }
 }
