@@ -1,5 +1,9 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
+import { Navbar } from '@/components/Navbar';
+import { Button } from '@/components/ui/button';
+import { signIn } from 'next-auth/react';
 
 export default function HomePage() {
   const [tripDetails, setTripDetails] = useState('');
@@ -8,7 +12,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -40,44 +44,33 @@ export default function HomePage() {
     }
   };
 
+  const handleLogin = () => {
+    signIn('google', { callbackUrl: '/chat' });
+  };
+
   return (
-    <main className="p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Trip Planner</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Describe your trip..."
-          value={tripDetails}
-          onChange={(e) => setTripDetails(e.target.value)}
-          className="w-full p-2 border rounded"
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-          disabled={loading}
-        >
-          {loading ? 'Generating...' : 'Generate Checklist'}
-        </button>
-      </form>
-
-      {error && <p className="text-red-600 mt-4">{error}</p>}
-
-      {response && (
-        <div className="mt-6">
-          <h2 className="font-bold text-lg">Recommendations:</h2>
-          <pre className="whitespace-pre-wrap bg-gray-100 p-4 mt-2 rounded">
-            {response.recommendations}
-          </pre>
-          {response.pdfFileName && (
-            <button
-              onClick={handleDownload}
-              className="mt-4 text-blue-600 underline"
-            >
-              📄 Download your checklist PDF
-            </button>
-          )}
+    <div className="min-h-screen flex flex-col">
+      {/* Hero Section */}
+      <section className="flex-grow flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-white text-center px-4">
+        <div className='flex gap-5 items-center mb-8'>
+          <img className='w-15' src="/tripper.png " alt="Tripper Icon" />
+          <h2 className="text-4xl font-bold text-gray-800">Tripper Chatbot</h2>
         </div>
-      )}
-    </main>
+        <h1 className="text-6xl font-bold text-gray-800 mb-8">
+          Perfect Outfits, Every Forecast
+        </h1>
+        <p className="text-xl text-gray-600 mb-8">
+          Tell us about your trip, and our smart chatbot will suggest exactly what to pack.
+        </p>
+        <Button className="font-bold text-xl px-8 py-6" onClick={handleLogin}>
+          Get Started
+        </Button>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-4 text-center">
+        <p>&copy; {new Date().getFullYear()} Tripper. All rights reserved. Developed by <Link href={"#"} className='hover:text-sky-600 transition'>OurTeamName</Link></p>
+      </footer>
+    </div>
   );
 }

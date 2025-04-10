@@ -36,8 +36,8 @@ public class TripChatService {
                 .map(Message::getContent)
                 .orElse("");
 
-        String lastUserLower = lastUserMessage.trim().toLowerCase();
-        boolean isGreeting = lastUserLower.matches("(?i)\\b(hi|hello|hey|howdy|greetings)\\b");
+//        String lastUserLower = lastUserMessage.trim().toLowerCase();
+//        boolean isGreeting = lastUserLower.matches("(?i)\\b(hi|hello|hey|howdy|greetings)\\b");
 
         Map<String, Object> extracted = tripInfoExtractionService.extract(lastUserMessage);
         List<String> locations = (List<String>) extracted.get("locations");
@@ -65,19 +65,22 @@ public class TripChatService {
         StringBuilder prompt = new StringBuilder();
         prompt.append("You are Tripper, a friendly and helpful travel assistant chatbot.\n\n");
 
-        if (isGreeting && messages.size() <= 2) {
-            prompt.append("If the user just greeted you, respond with a friendly greeting and ask for their trip destination and date.\n\n");
-        } else {
-            prompt.append("Provide helpful and personalized clothing suggestions and travel tips based on their trip.\n\n");
-        }
+//
+//        if (isGreeting && messages.size() <= 2) {
+//            prompt.append("If the user just greeted you, respond with a friendly greeting and ask for their trip destination and date.\n\n");
+//        }
 
         if (dates == null || dates.isEmpty()) {
-            prompt.append("If the user didn't provide a date for the trip, kindly ask when they are planning to go before giving the details.\n\n");
+            prompt.append("If the user provided the locations but didn't provide a date for the trip, kindly ask when they are planning to go.\n\n");
         }
 
         if (!weatherInfo.isEmpty()) {
-            prompt.append("Weather info: ").append(weatherInfo).append("\n\n");
+            prompt.append("Include the weather info: ").append(weatherInfo).append("\n\n");
         }
+
+
+        prompt.append("If the user has provided the location and dates of their trip, then provide helpful and personalized clothing suggestions and travel tips based on their trip.\n\n");
+
 
         prompt.append("Conversation so far:\n").append(conversationText).append("\n\n");
         prompt.append("Now respond accordingly.");
@@ -89,9 +92,9 @@ public class TripChatService {
         StringBuilder prompt = new StringBuilder();
         for (Message msg : messages) {
             if ("user".equalsIgnoreCase(msg.getSender())) {
-                prompt.append("User: ").append(msg.getContent()).append("\n");
+                prompt.append(msg.getContent()).append("\n");
             } else {
-                prompt.append("Assistant: ").append(msg.getContent()).append("\n");
+                prompt.append(msg.getContent()).append("\n");
             }
         }
         return prompt.toString();
