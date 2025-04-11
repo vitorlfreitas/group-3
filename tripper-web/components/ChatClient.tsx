@@ -45,6 +45,19 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const checkScreenWidth = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+
+    checkScreenWidth();
+
+    window.addEventListener("resize", checkScreenWidth);
+    return () => window.removeEventListener("resize", checkScreenWidth);
+  }, []);
+
     useEffect(() => {
         const socket = new SockJS("http://localhost:8080/ws-chat");
         const client = new Client({
@@ -283,10 +296,8 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
             <aside
                 className="fixed top-0 left-0 z-20 w-64 bg-white p-4 overflow-y-auto shadow-md md:relative md:top-0 md:h-full"
                 style={{
-                    transform: sidebarOpen
-                        ? "translateX(0)"
-                        : "translateX(-100%)",
-                    transition: "transform 0.3s ease-in-out",
+                  transform: isDesktop ? "none" : (sidebarOpen ? "translateX(0)" : "translateX(-100%)"),
+                  transition: "transform 0.3s ease-in-out",
                 }}
             >
                 <div className="flex justify-between items-center mb-4">
