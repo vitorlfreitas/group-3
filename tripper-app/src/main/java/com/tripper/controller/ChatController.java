@@ -5,11 +5,15 @@ import com.tripper.model.Message;
 import com.tripper.service.ConversationService;
 import com.tripper.service.TripChatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/chat")
 public class ChatController {
@@ -101,6 +105,31 @@ public class ChatController {
         conversationService.deleteConversation(conversationId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{conversationId}/export/pdf")
+    public ResponseEntity<byte[]> exportConversationAsPdf(@PathVariable Long conversationId) {
+        try {
+            Conversation conversation = conversationService.getConversationById(conversationId);
+            String title = conversation.getTitle();
+            if (title == null || title.trim().isEmpty()) {
+                title = "conversation-" + conversationId;
+            }
+
+            String safeTitle = title.toLowerCase().replaceAll("[^a-z0-9]+", "-");
+
+            byte[] pdfBytes = conversationService.generateConversationPdf(conversationId);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", safeTitle + ".pdf");
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 
 
 }

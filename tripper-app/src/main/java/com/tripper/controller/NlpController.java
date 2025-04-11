@@ -1,92 +1,44 @@
 package com.tripper.controller;
 
+import com.tripper.model.Message;
 import com.tripper.model.TripChecklistSection;
-import com.tripper.service.SentenceDetectionService;
-import com.tripper.service.TripChatService;
-import com.tripper.service.TripInfoExtractionService;
+import com.tripper.service.ConversationService;
 import com.tripper.util.GPTResponseParser;
 import com.tripper.util.PDFGenerator;
-import opennlp.tools.tokenize.SimpleTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/nlp")
+@RequestMapping("/chat")
 public class NlpController {
 
-    @PostMapping("/tokenize")
-    public Map<String, Object> tokenize(@RequestBody Map<String, String> request) {
-        String sentence = request.get("text");
-
-        SimpleTokenizer tokenizer = SimpleTokenizer.INSTANCE;
-        String[] tokens = tokenizer.tokenize(sentence);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("original", sentence);
-        response.put("tokens", tokens);
-
-        return response;
-    }
-
     @Autowired
-    private SentenceDetectionService sentenceDetectionService;
-
-    @PostMapping("/sentences")
-    public Map<String, Object> detectSentences(@RequestBody Map<String, String> request) {
-        String text = request.get("text");
-
-        String[] sentences = sentenceDetectionService.detectSentences(text);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("original", text);
-        response.put("sentences", sentences);
-
-        return response;
-    }
-
-    @Autowired
-    private TripInfoExtractionService tripInfoExtractionService;
-
-    @PostMapping("/trip-info")
-    public Map<String, Object> extractTripInfo(@RequestBody Map<String, String> request) {
-        String text = request.get("text");
-        return tripInfoExtractionService.extract(text);
-    }
-
-//    @Autowired
-//    private TripChatService tripChatService;
-//
-//    @PostMapping("/trip-recommendations")
-//    public Map<String, Object> getTripAdvice(@RequestBody Map<String, Object> request) {
-//        String name = (String) request.getOrDefault("name", "Traveler");
-//        List<String> locations = (List<String>) request.get("locations");
-//        List<String> dates = (List<String>) request.get("dates");
-//
-//        String gptResponse = tripChatService.generateTripAdvice(name, locations, dates);
-//
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("recommendations", gptResponse);
-//        return response;
-//    }
+    private ConversationService conversationService;
 
     @PostMapping("/generate-structured-pdf")
-    public Map<String, String> createStructuredPdf(@RequestBody Map<String, String> request) {
-        String name = request.getOrDefault("name", "Traveler");
-        String fileName = name + "_StructuredTripChecklist.pdf";
+    public Map<String, String> createStructuredPdfFromChat(@RequestBody Map<String, String> request) {
+        Long conversationId = Long.parseLong(request.get("conversationId"));
+        String userName = request.getOrDefault("name", "Traveler");
+
+        List<Message> messages = conversationService.getConversationMessages(conversationId);
+        String fullChat = messages.stream()
+                .map(m -> m.getSender() + ": " + m.getContent())
+                .collect(Collectors.joining("\n"));
 
         List<TripChecklistSection> sections = GPTResponseParser.parseFromExampleResponse();
-        PDFGenerator.generateTripChecklistPdf(fileName, name, sections);
+
+        String fileName = userName + "_StructuredTripChecklist.pdf";
+        PDFGenerator.generateTripChecklistPdf(fileName, userName, sections);
 
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Structured PDF generated");
+        response.put("message", "Structured PDF generated from chat");
         response.put("file", fileName);
         return response;
     }
-
-
-
 }

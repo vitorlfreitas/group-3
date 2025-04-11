@@ -12,4 +12,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
 
     List<Message> findByUserIdAndConversationId(String userId, Long conversationId);
 
+    List<Message> findByConversationId(Long conversationId);
+
+
 }

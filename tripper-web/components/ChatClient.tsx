@@ -3,9 +3,8 @@ import { Session } from "next-auth";
 import { useEffect, useState, useRef } from "react";
 import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
-import { User } from "lucide-react";
+import { User, MoreVertical, Pencil, FileDown, Trash2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { Trash2 } from "lucide-react";
 
 let stompClient: Client | null = null;
 
@@ -34,6 +33,7 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
 
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editTitle, setEditTitle] = useState("");
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
     useEffect(() => {
         const socket = new SockJS("http://localhost:8080/ws-chat");
@@ -165,7 +165,30 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
         setMessages(history);
     };
 
+    const menuRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (
+                menuRef.current &&
+                !menuRef.current.contains(event.target as Node)
+            ) {
+                setOpenMenuId(null);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
     const updateTitle = async (id: number) => {
+        if (!editTitle.trim()) {
+            setEditingId(null); // Exit edit mode without saving
+            return;
+        }
+
         await fetch(`http://localhost:8080/chat/${id}/title`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -182,24 +205,59 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
     };
 
     const handleDelete = async (id: number) => {
-        const confirmed = window.confirm("Are you sure you want to delete this conversation?");
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this conversation?"
+        );
         if (!confirmed) return;
-      
+
         await fetch(`http://localhost:8080/chat/${id}`, {
-          method: "DELETE",
+            method: "DELETE",
         });
-      
+
         // Refresh the conversation list
-        const res = await fetch(`http://localhost:8080/chat/user/${user.email}`);
+        const res = await fetch(
+            `http://localhost:8080/chat/user/${user.email}`
+        );
         const data = await res.json();
         setUserConversations(data);
-      
+
         if (conversationId === id) {
-          setConversationId(null);
-          setMessages([]);
+            setConversationId(null);
+            setMessages([]);
         }
-      };
-      
+    };
+
+    const handleExportPdf = async (id: number) => {
+        if (!conversationId) return;
+
+        const res = await fetch(
+            `http://localhost:8080/chat/${conversationId}/export/pdf`
+        );
+
+        if (!res.ok) {
+            alert("Failed to generate PDF.");
+            return;
+        }
+
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, "_blank");
+
+        const conv = userConversations.find((c) => c.id === id);
+        const sanitizedTitle = (conv?.title || `conversation-${id}`)
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+
+        const fileName = `${sanitizedTitle}.pdf`;
+
+        const link = document.createElement("a");
+        link.href = url;
+        document.body.appendChild(link);
+        link.download = fileName;
+        link.click();
+        link.remove();
+    };
 
     return (
         <main className="h-screen bg-gray-200 flex">
@@ -210,47 +268,94 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
                 </h2>
                 <ul className="space-y-2">
                     {userConversations.map((conv) => (
-                        <li key={conv.id}>
-                            <div className="flex items-center justify-between group p-2 rounded hover:bg-gray-100 cursor-pointer">
-                                {editingId === conv.id ? (
-                                    <input
-                                        className="w-full p-1 border rounded text-sm"
-                                        value={editTitle}
-                                        onChange={(e) =>
-                                            setEditTitle(e.target.value)
-                                        }
-                                        onBlur={() => updateTitle(conv.id)}
-                                        onKeyDown={(e) =>
-                                            e.key === "Enter" &&
-                                            updateTitle(conv.id)
-                                        }
-                                        autoFocus
-                                    />
-                                ) : (
+                        <div
+                            key={conv.id}
+                            className={`flex justify-between items-center p-2 rounded hover:bg-gray-100 ${
+                                conversationId === conv.id ? "bg-gray-100" : ""
+                            }`}
+                        >
+                            {editingId === conv.id ? (
+                                <input
+                                    type="text"
+                                    value={editTitle}
+                                    onChange={(e) =>
+                                        setEditTitle(e.target.value)
+                                    }
+                                    onBlur={() => updateTitle(conv.id)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter")
+                                            updateTitle(conv.id);
+                                    }}
+                                    autoFocus
+                                    className="text-sm border px-2 py-1 rounded w-full"
+                                />
+                            ) : (
+                                <button
+                                    className="text-left flex-1 truncate"
+                                    onClick={() => loadConversation(conv.id)}
+                                >
+                                    {conv.title ||
+                                        new Date(
+                                            conv.startedAt
+                                        ).toLocaleString()}
+                                </button>
+                            )}
+
+                            <div className="relative">
+                                <button
+                                    onClick={() =>
+                                        setOpenMenuId(
+                                            openMenuId === conv.id
+                                                ? null
+                                                : conv.id
+                                        )
+                                    }
+                                >
+                                    <MoreVertical size={18} />
+                                </button>
+
+                                {openMenuId === conv.id && (
                                     <div
-                                        onDoubleClick={() => {
-                                            setEditingId(conv.id);
-                                            setEditTitle(conv.title ?? "");
-                                        }}
-                                        className="text-left w-full"
-                                        onClick={() => loadConversation(conv.id)}
+                                        ref={menuRef}
+                                        className="absolute right-0 mt-2 w-32 bg-white border rounded shadow z-10"
                                     >
-                                        {conv.title && conv.title.trim() !== ""
-                                            ? conv.title
-                                            : new Date(
-                                                  conv.startedAt
-                                              ).toLocaleString()}
+                                        <button
+                                            onClick={() => {
+                                                setEditingId(conv.id);
+                                                setEditTitle(conv.title || "");
+                                                setOpenMenuId(null);
+                                            }}
+                                            className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                                        >
+                                            <Pencil size={16} />
+                                            Rename
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                handleExportPdf(conv.id);
+                                                setOpenMenuId(null);
+                                            }}
+                                            className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                                        >
+                                            <FileDown size={16} />
+                                            Export
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                handleDelete(conv.id);
+                                                setOpenMenuId(null);
+                                            }}
+                                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600 flex items-center gap-2"
+                                        >
+                                            <Trash2 size={16} />
+                                            Delete
+                                        </button>
                                     </div>
                                 )}
-                                {/* Trash Icon */}
-                                <button
-                                    onClick={() => handleDelete(conv.id)}
-                                    className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition cursor-pointer"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
                             </div>
-                        </li>
+                        </div>
                     ))}
                 </ul>
             </aside>
@@ -347,12 +452,25 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
                                     e.key === "Enter" && sendMessage()
                                 }
                             />
+
                             <button
                                 onClick={sendMessage}
                                 className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition hover:cursor-pointer"
                                 disabled={!connected}
                             >
                                 Send
+                            </button>
+
+                            {/* ✅ Export PDF Button */}
+                            <button
+                                onClick={() => handleExportPdf(conversationId)}
+                                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition hover:cursor-pointer flex items-center gap-1"
+                                title="Export conversation as PDF"
+                            >
+                                <FileDown size={16} />
+                                <span className="text-sm hidden sm:inline">
+                                    Export
+                                </span>
                             </button>
                         </div>
                     )}
