@@ -283,8 +283,10 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
             <aside
                 className="fixed top-0 left-0 z-20 w-64 bg-white p-4 overflow-y-auto shadow-md md:relative md:top-0 md:h-full"
                 style={{
-                  transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-                  transition: "transform 0.3s ease-in-out",
+                    transform: sidebarOpen
+                        ? "translateX(0)"
+                        : "translateX(-100%)",
+                    transition: "transform 0.3s ease-in-out",
                 }}
             >
                 <div className="flex justify-between items-center mb-4">
@@ -483,10 +485,11 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
 
                     {/* Input */}
                     {conversationId && (
-                        <div className="p-4 flex flex-col sm:flex-row gap-2">
+                        <div className="p-4 flex flex-row items-center gap-2">
+                            {/* Input takes up leftover space */}
                             <input
                                 type="text"
-                                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="flex-1 min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Ask Tripper about your trip..."
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
@@ -495,24 +498,28 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
                                 }
                             />
 
-                            <div className="flex gap-2 justify-end">
+                            {/* Buttons */}
+                            <div className="flex flex-row items-center gap-2 shrink-0">
+                                {/* Mobile-only button */}
                                 <button
                                     onClick={sendMessage}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition hover:cursor-pointer sm:hidden"
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition hover:cursor-pointer sm:hidden disabled:opacity-50 disabled:cursor-not-allowed"
                                     title="Send"
                                     disabled={!connected}
                                 >
                                     <SendHorizonal size={18} />
                                 </button>
 
+                                {/* Desktop-only button */}
                                 <button
                                     onClick={sendMessage}
-                                    className="hidden sm:inline bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition hover:cursor-pointer"
+                                    className="hidden sm:inline bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled={!connected}
                                 >
                                     Send
                                 </button>
 
+                                {/* Export button */}
                                 <button
                                     onClick={() =>
                                         handleExportPdf(conversationId)

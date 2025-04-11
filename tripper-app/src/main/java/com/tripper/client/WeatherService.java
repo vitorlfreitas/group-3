@@ -2,6 +2,7 @@ package com.tripper.client;
 
 import com.google.gson.Gson;
 import com.tripper.model.WeatherResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -15,12 +16,15 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class WeatherService {
 
-    private static final String API_KEY = "3546933fd7ea84c81dd36f6faa3dbe9d";
-    private static final String BASE_URL = "https://api.openweathermap.org/data/2.5/forecast";
+    @Value("${weather.api.key}")
+    private String API_KEY;
+
+    @Value("${weather.api.url}")
+    private String BASE_URL;
 
     public WeatherResponse getForecastData(String location) {
         try {
-            String encodedLocation = URLEncoder.encode(location, StandardCharsets.UTF_8.toString());
+            String encodedLocation = URLEncoder.encode(location, StandardCharsets.UTF_8);
 
             String urlString = String.format("%s?q=%s&appid=%s&units=metric", BASE_URL, encodedLocation, API_KEY);
             URL url = new URL(urlString);

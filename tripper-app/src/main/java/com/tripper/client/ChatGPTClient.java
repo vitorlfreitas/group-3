@@ -1,18 +1,20 @@
 package com.tripper.client;
 
 import com.google.gson.*;
-import com.google.maps.GeoApiContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class ChatGPTClient {
 
-    // DO NOT SHARE OR USE THIS API KEY publicly.
-    private static final String API_KEY = "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";
-    private static final String API_URL = "https://api.openai.com/v1/chat/completions";
+    @Value("${openai.api.key}")
+    private String API_KEY;
+
+    @Value("${openai.api.url}")
+    private String API_URL;
 
     public String getChatResponse(String conversationContext) {
         try {
@@ -46,11 +48,11 @@ public class ChatGPTClient {
 
             // Send the request
             try (OutputStream os = connection.getOutputStream()) {
-                os.write(payload.toString().getBytes("UTF-8"));
+                os.write(payload.toString().getBytes(StandardCharsets.UTF_8));
             }
 
             // Read the response
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
             StringBuilder response = new StringBuilder();
             String line;
             while ((line = in.readLine()) != null) {
@@ -61,7 +63,7 @@ public class ChatGPTClient {
             // Parse the response JSON using Gson
             JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
             JsonArray choices = jsonResponse.getAsJsonArray("choices");
-            if (choices.size() > 0) {
+            if (!choices.isEmpty()) {
                 JsonObject firstChoice = choices.get(0).getAsJsonObject();
                 String reply = firstChoice.getAsJsonObject("message").get("content").getAsString();
                 return reply.trim();
