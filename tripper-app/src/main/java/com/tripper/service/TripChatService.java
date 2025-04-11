@@ -65,11 +65,6 @@ public class TripChatService {
         StringBuilder prompt = new StringBuilder();
         prompt.append("You are Tripper, a friendly and helpful travel assistant chatbot.\n\n");
 
-//
-//        if (isGreeting && messages.size() <= 2) {
-//            prompt.append("If the user just greeted you, respond with a friendly greeting and ask for their trip destination and date.\n\n");
-//        }
-
         if (dates == null || dates.isEmpty()) {
             prompt.append("If the user provided the locations but didn't provide a date for the trip, kindly ask when they are planning to go.\n\n");
         }

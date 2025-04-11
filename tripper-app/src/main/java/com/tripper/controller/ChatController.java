@@ -40,7 +40,7 @@ public class ChatController {
         String userMessage = payload.get("message");
 
         // Save user message
-        conversationService.addMessage(conversationId, "user", userMessage);
+        conversationService.addMessage(conversationId, "user", userMessage, userId);
 
         // Fetch chat history for context
         List<Message> history = conversationService.getConversationMessages(conversationId);
@@ -50,7 +50,7 @@ public class ChatController {
         String botReply = tripChatService.chatWithGPT(conversationId);
 
         // Save bot message
-        conversationService.addMessage(conversationId, "assistant", botReply);
+        conversationService.addMessage(conversationId, "assistant", botReply, userId);
 
         // Return updated chat history
         return conversationService.getConversationMessages(conversationId);
@@ -68,6 +68,14 @@ public class ChatController {
         return conversationService.getUserConversations(userId);
     }
 
+    @GetMapping("/history")
+    public List<Message> getUserMessages(
+            @RequestParam String userId,
+            @RequestParam Long conversationId
+    ) {
+        return conversationService.getMessagesByUserAndConversation(userId, conversationId);
+    }
+
     // Helper to build prompt
     private String buildPromptFromHistory(List<Message> history) {
         StringBuilder sb = new StringBuilder();
@@ -76,4 +84,6 @@ public class ChatController {
         }
         return sb.toString();
     }
+
+
 }

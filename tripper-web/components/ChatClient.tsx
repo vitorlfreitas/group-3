@@ -8,6 +8,12 @@ import ReactMarkdown from "react-markdown";
 
 let stompClient: Client | null = null;
 
+type Conversation = {
+    id: number;
+    title: string | null;
+    startedAt: string;
+};
+
 type Message = {
     sender: "user" | "assistant";
     content: string;
@@ -21,6 +27,9 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
     const [input, setInput] = useState("");
     const bottomRef = useRef<HTMLDivElement>(null);
     const [isTyping, setIsTyping] = useState(false);
+    const [userConversations, setUserConversations] = useState<Conversation[]>(
+        []
+    );
 
     useEffect(() => {
         const socket = new SockJS("http://localhost:8080/ws-chat");
@@ -38,11 +47,33 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
             const res = await fetch("http://localhost:8080/chat/start", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: user.id }),
+                body: JSON.stringify({ userId: user.email }),
             });
 
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+                console.log("✅ Parsed response:", data);
+            } catch (err) {
+                console.error("❌ Failed to parse JSON:", err);
+            }
+
             setConversationId(data.conversationId);
+
+            const historyRes = await fetch(
+                `http://localhost:8080/chat/history?userId=${user.email}&conversationId=${data.conversationId}`
+            );
+
+            if (historyRes.ok) {
+                let history;
+                try {
+                    history = await historyRes.json();
+                    console.log("✅ Fetched history:", history);
+                } catch (err) {
+                    console.error("❌ Failed to parse history JSON:", err);
+                } 
+                setMessages(history);
+            }
 
             client.subscribe(
                 `/topic/chat/${data.conversationId}`,
@@ -94,93 +125,174 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    return (
-        <main className="h-10/12 bg-gray-200 flex flex-col items-center justify-center px-4 py-8">
-            <div className="w-full max-w-2xl flex flex-col bg-white shadow-md rounded-2xl overflow-hidden h-full">
-                <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
-                    {messages.map((msg, index) => {
-                        const isUser = msg.sender === "user";
-                        return (
-                            <div
-                                key={index}
-                                className={`flex items-start gap-2 ${
-                                    isUser ? "justify-end" : "justify-start"
-                                }`}
-                            >
-                                {!isUser && (
-                                    <img
-                                        src="/tripper.png"
-                                        alt="Tripper"
-                                        className="w-8 h-8 rounded-full"
-                                    />
-                                )}
-                                <div
-                                    className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
-                                        isUser
-                                            ? "bg-blue-600 text-white rounded-br-none"
-                                            : "bg-gray-200 text-gray-900 rounded-bl-none"
-                                    }`}
-                                >
-                                    <div className="prose prose-sm text-sm">
-                                        <ReactMarkdown>
-                                            {msg.content}
-                                        </ReactMarkdown>
-                                    </div>
-                                    {msg.timestamp && (
-                                        <p className="text-xs text-right opacity-60 mt-1">
-                                            {new Date(
-                                                msg.timestamp
-                                            ).toLocaleTimeString([], {
-                                                hour: "2-digit",
-                                                minute: "2-digit",
-                                            })}
-                                        </p>
-                                    )}
-                                </div>
-                                {isUser && (
-                                    <div className="p-2 bg-gray-300 rounded-full">
-                                        <User className="w-5 h-5 text-gray-800" />
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
+    useEffect(() => {
+        const fetchConversations = async () => {
+            const res = await fetch(
+                `http://localhost:8080/chat/user/${user.email}`
+            );
+            let data;
+            try {
+                data = await res.json();
+                console.log("✅ Fetched conversations:", data);
+            }
+            catch (err) {
+                console.error("❌ Failed to parse conversations JSON:", err);
+            }
+            setUserConversations(data);
+            console.log("Fetched conversations:", data);
+        };
 
-                    {isTyping && (
-                        <div className="flex items-center gap-2">
-                            <img
-                                src="/tripper.png"
-                                alt="Tripper"
-                                className="w-8 h-8 rounded-full"
-                            />
-                            <div className="bg-gray-200 px-4 py-2 rounded-xl text-sm animate-pulse text-gray-800">
-                                Tripper is typing
-                                <span className="animate-bounce">...</span>
+        if (user?.email) {
+            fetchConversations();
+        }
+    }, [user]);
+
+    const loadConversation = async (conversationId: number) => {
+        const res = await fetch(
+            `http://localhost:8080/chat/${conversationId}/messages`
+        );
+        let history; 
+        try {
+            history = await res.json();
+            console.log("✅ Fetched conversation history:", history);
+        } catch (err) {
+            console.error("❌ Failed to parse conversation history JSON:", err);
+        }
+        setConversationId(conversationId);
+        setMessages(history);
+    };
+
+    
+
+    return (
+        <main className="h-screen bg-gray-200 flex">
+            {/* Sidebar */}
+            <aside className="w-64 border-r bg-white p-4 overflow-y-auto">
+                <h2 className="text-lg font-semibold mb-4">
+                    Your Conversations
+                </h2>
+                <ul className="space-y-2">
+                    {userConversations.map((conv) => (
+                        <li key={conv.id}>
+                            <button
+                                className={`text-left w-full p-2 rounded hover:bg-gray-100 ${
+                                    conversationId === conv.id
+                                        ? "bg-gray-100 font-semibold"
+                                        : ""
+                                }`}
+                                onClick={() => loadConversation(conv.id)}
+                            >
+                                {conv.title ||
+                                    new Date(conv.startedAt).toLocaleString()}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </aside>
+
+            {/* Chat Window */}
+            <section className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+                <div className="w-full max-w-2xl flex flex-col bg-white shadow-md rounded-2xl overflow-hidden h-full">
+                    <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+                        {messages.length > 0 ? (
+                            messages.map((msg, index) => {
+                                const isUser = msg.sender === "user";
+                                return (
+                                    <div
+                                        key={index}
+                                        className={`flex items-start gap-2 ${
+                                            isUser
+                                                ? "justify-end"
+                                                : "justify-start"
+                                        }`}
+                                    >
+                                        {!isUser && (
+                                            <img
+                                                src="/tripper.png"
+                                                alt="Tripper"
+                                                className="w-8 h-8 rounded-full"
+                                            />
+                                        )}
+                                        <div
+                                            className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
+                                                isUser
+                                                    ? "bg-blue-600 text-white rounded-br-none"
+                                                    : "bg-gray-200 text-gray-900 rounded-bl-none"
+                                            }`}
+                                        >
+                                            <div className="prose prose-sm text-sm">
+                                                <ReactMarkdown>
+                                                    {msg.content}
+                                                </ReactMarkdown>
+                                            </div>
+                                            {msg.timestamp && (
+                                                <p className="text-xs text-right opacity-60 mt-1">
+                                                    {new Date(
+                                                        msg.timestamp
+                                                    ).toLocaleTimeString([], {
+                                                        hour: "2-digit",
+                                                        minute: "2-digit",
+                                                    })}
+                                                </p>
+                                            )}
+                                        </div>
+                                        {isUser && (
+                                            <div className="p-2 bg-gray-300 rounded-full">
+                                                <User className="w-5 h-5 text-gray-800" />
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <p className="text-gray-500 text-center mt-12">
+                                {conversationId
+                                    ? "No messages yet."
+                                    : "Select a conversation to view messages."}
+                            </p>
+                        )}
+
+                        {isTyping && (
+                            <div className="flex items-center gap-2">
+                                <img
+                                    src="/tripper.png"
+                                    alt="Tripper"
+                                    className="w-8 h-8 rounded-full"
+                                />
+                                <div className="bg-gray-200 px-4 py-2 rounded-xl text-sm animate-pulse text-gray-800">
+                                    Tripper is typing
+                                    <span className="animate-bounce">...</span>
+                                </div>
                             </div>
+                        )}
+
+                        <div ref={bottomRef} />
+                    </div>
+
+                    {/* Input */}
+                    {conversationId && (
+                        <div className="p-4 flex gap-2">
+                            <input
+                                type="text"
+                                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Ask Tripper about your trip..."
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={(e) =>
+                                    e.key === "Enter" && sendMessage()
+                                }
+                            />
+                            <button
+                                onClick={sendMessage}
+                                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition hover:cursor-pointer"
+                                disabled={!connected}
+                            >
+                                Send
+                            </button>
                         </div>
                     )}
-
-                    <div ref={bottomRef} />
                 </div>
-
-                <div className="p-4 flex gap-2">
-                    <input
-                        type="text"
-                        className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Ask Tripper about your trip..."
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                    />
-                    <button
-                        onClick={sendMessage}
-                        className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition hover:cursor-pointer"
-                        disabled={!connected}
-                    >
-                        Send
-                    </button>
-                </div>
-            </div>
+            </section>
         </main>
     );
 }

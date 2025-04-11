@@ -1,16 +1,23 @@
 package com.tripper.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Entity
 public class Message {
 
+    // Getters
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // ID of the message
+
+    @Setter
+    private String userId;
 
     @Setter
     private String sender;
@@ -24,16 +31,7 @@ public class Message {
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id")
+    @JsonBackReference
     private Conversation conversation;
 
-    // Getters and setters
-    public Long getId() { return id; }
-
-    public String getSender() { return sender; }
-
-    public String getContent() { return content; }
-
-    public LocalDateTime getTimestamp() { return timestamp; }
-
-    public Conversation getConversation() { return conversation; }
 }

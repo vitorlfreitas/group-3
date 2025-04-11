@@ -7,6 +7,7 @@ import com.tripper.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,8 +22,12 @@ public class ConversationService {
 
     // Create a new conversation for a user
     public Conversation startNewConversation(String userId) {
+
         Conversation conversation = new Conversation();
+
         conversation.setUserId(userId);
+        conversation.setStartedAt(LocalDateTime.now());
+        conversation.setTitle("New conversation");
         return conversationRepository.save(conversation);
     }
 
@@ -40,14 +45,21 @@ public class ConversationService {
     }
 
     // Add a new message to a conversation
-    public Message addMessage(Long conversationId, String sender, String content) {
-        Optional<Conversation> conversationOpt = conversationRepository.findById(conversationId);
-        if (conversationOpt.isEmpty()) throw new RuntimeException("Conversation not found");
+    public void addMessage(Long conversationId, String sender, String content, String userId) {
+
+        Conversation conversation = conversationRepository.findById(conversationId).orElseThrow();
 
         Message message = new Message();
-        message.setConversation(conversationOpt.get());
         message.setSender(sender);
         message.setContent(content);
-        return messageRepository.save(message);
+        message.setUserId(userId);
+        message.setConversation(conversation);
+
+        messageRepository.save(message);
     }
+
+    public List<Message> getMessagesByUserAndConversation(String userId, Long conversationId) {
+        return messageRepository.findByUserIdAndConversationId(userId, conversationId);
+    }
+
 }

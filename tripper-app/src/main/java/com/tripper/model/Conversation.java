@@ -1,11 +1,14 @@
 package com.tripper.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Getter
 @Entity
 public class Conversation {
 
@@ -15,18 +18,21 @@ public class Conversation {
 
     @Setter
     private String userId;
-    private LocalDateTime createdAt = LocalDateTime.now();
+
+    final private LocalDateTime createdAt = LocalDateTime.now();
 
     @Setter
-    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Message> messages;
 
-    // Getters and setters
-    public Long getId() { return id; }
+    @Setter
+    @Column(nullable = false)
+    private LocalDateTime startedAt = LocalDateTime.now();
 
-    public String getUserId() { return userId; }
+    @Setter
+    @Column
+    private String title;
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
 
-    public List<Message> getMessages() { return messages; }
 }

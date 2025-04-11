@@ -40,13 +40,13 @@ public class ChatSocketController {
         String userContent = incomingMessage.getContent();
 
         // Save the user's message to the conversation
-        conversationService.addMessage(conversationId, "user", userContent);
+        conversationService.addMessage(conversationId, "user", userContent, userId);
 
         // Generate a reply from GPT based on the conversation history
         String reply = tripChatService.chatWithGPT(conversationId);
 
         // Save the assistant's reply to the conversation
-        conversationService.addMessage(conversationId, "assistant", reply);
+        conversationService.addMessage(conversationId, "assistant", reply, userId);
 
         // Fetch the full updated conversation history
         List<Message> messages = conversationService.getConversationMessages(conversationId);
