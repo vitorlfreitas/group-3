@@ -3,7 +3,16 @@ import { Session } from "next-auth";
 import { useEffect, useState, useRef } from "react";
 import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
-import { User, MoreVertical, Pencil, FileDown, Trash2 } from "lucide-react";
+import {
+    User,
+    MoreVertical,
+    Pencil,
+    FileDown,
+    Trash2,
+    SendHorizonal,
+    Menu,
+    X,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 let stompClient: Client | null = null;
@@ -34,6 +43,7 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editTitle, setEditTitle] = useState("");
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         const socket = new SockJS("http://localhost:8080/ws-chat");
@@ -260,12 +270,34 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
     };
 
     return (
-        <main className="h-screen bg-gray-200 flex">
+        <main className="h-screen bg-gray-200 flex flex-col md:flex-row">
+            {/* Mobile Backdrop */}
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/25 backdrop-blur-sm z-10 md:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="w-64 border-r bg-white p-4 overflow-y-auto">
-                <h2 className="text-lg font-semibold mb-4">
-                    Your Conversations
-                </h2>
+            <aside
+                className="fixed top-0 left-0 z-20 w-64 bg-white p-4 overflow-y-auto shadow-md md:relative md:top-0 md:h-full"
+                style={{
+                  transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
+                  transition: "transform 0.3s ease-in-out",
+                }}
+            >
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold">
+                        Your Conversations
+                    </h2>
+                    <button
+                        className="md:hidden text-gray-700"
+                        onClick={() => setSidebarOpen(false)}
+                    >
+                        <X />
+                    </button>
+                </div>
                 <ul className="space-y-2">
                     {userConversations.map((conv) => (
                         <div
@@ -292,7 +324,10 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
                             ) : (
                                 <button
                                     className="text-left flex-1 truncate"
-                                    onClick={() => loadConversation(conv.id)}
+                                    onClick={() => {
+                                        loadConversation(conv.id);
+                                        setSidebarOpen(false); // Hide sidebar on mobile after selection
+                                    }}
                                 >
                                     {conv.title ||
                                         new Date(
@@ -313,7 +348,6 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
                                 >
                                     <MoreVertical size={18} />
                                 </button>
-
                                 {openMenuId === conv.id && (
                                     <div
                                         ref={menuRef}
@@ -330,7 +364,6 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
                                             <Pencil size={16} />
                                             Rename
                                         </button>
-
                                         <button
                                             onClick={() => {
                                                 handleExportPdf(conv.id);
@@ -341,7 +374,6 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
                                             <FileDown size={16} />
                                             Export
                                         </button>
-
                                         <button
                                             onClick={() => {
                                                 handleDelete(conv.id);
@@ -361,8 +393,18 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
             </aside>
 
             {/* Chat Window */}
-            <section className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+            <section className="flex-1 flex flex-col items-center justify-center px-2 md:px-4 py-4 md:py-8">
                 <div className="w-full max-w-2xl flex flex-col bg-white shadow-md rounded-2xl overflow-hidden h-full">
+                    {/* Mobile Toggle Button */}
+                    <div className="md:hidden p-2">
+                        <button
+                            className="text-gray-800"
+                            onClick={() => setSidebarOpen(true)}
+                        >
+                            <Menu />
+                        </button>
+                    </div>
+
                     <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
                         {messages.length > 0 ? (
                             messages.map((msg, index) => {
@@ -441,7 +483,7 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
 
                     {/* Input */}
                     {conversationId && (
-                        <div className="p-4 flex gap-2">
+                        <div className="p-4 flex flex-col sm:flex-row gap-2">
                             <input
                                 type="text"
                                 className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -453,25 +495,37 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
                                 }
                             />
 
-                            <button
-                                onClick={sendMessage}
-                                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition hover:cursor-pointer"
-                                disabled={!connected}
-                            >
-                                Send
-                            </button>
+                            <div className="flex gap-2 justify-end">
+                                <button
+                                    onClick={sendMessage}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition hover:cursor-pointer sm:hidden"
+                                    title="Send"
+                                    disabled={!connected}
+                                >
+                                    <SendHorizonal size={18} />
+                                </button>
 
-                            {/* ✅ Export PDF Button */}
-                            <button
-                                onClick={() => handleExportPdf(conversationId)}
-                                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition hover:cursor-pointer flex items-center gap-1"
-                                title="Export conversation as PDF"
-                            >
-                                <FileDown size={16} />
-                                <span className="text-sm hidden sm:inline">
-                                    Export
-                                </span>
-                            </button>
+                                <button
+                                    onClick={sendMessage}
+                                    className="hidden sm:inline bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition hover:cursor-pointer"
+                                    disabled={!connected}
+                                >
+                                    Send
+                                </button>
+
+                                <button
+                                    onClick={() =>
+                                        handleExportPdf(conversationId)
+                                    }
+                                    className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition hover:cursor-pointer flex items-center gap-1"
+                                    title="Export conversation as PDF"
+                                >
+                                    <FileDown size={16} />
+                                    <span className="text-sm hidden sm:inline">
+                                        Export
+                                    </span>
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
