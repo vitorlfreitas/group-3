@@ -5,6 +5,7 @@ import SockJS from "sockjs-client";
 import { Client, IMessage } from "@stomp/stompjs";
 import { User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { Trash2 } from "lucide-react";
 
 let stompClient: Client | null = null;
 
@@ -180,6 +181,26 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
         setEditingId(null);
     };
 
+    const handleDelete = async (id: number) => {
+        const confirmed = window.confirm("Are you sure you want to delete this conversation?");
+        if (!confirmed) return;
+      
+        await fetch(`http://localhost:8080/chat/${id}`, {
+          method: "DELETE",
+        });
+      
+        // Refresh the conversation list
+        const res = await fetch(`http://localhost:8080/chat/user/${user.email}`);
+        const data = await res.json();
+        setUserConversations(data);
+      
+        if (conversationId === id) {
+          setConversationId(null);
+          setMessages([]);
+        }
+      };
+      
+
     return (
         <main className="h-screen bg-gray-200 flex">
             {/* Sidebar */}
@@ -190,36 +211,45 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
                 <ul className="space-y-2">
                     {userConversations.map((conv) => (
                         <li key={conv.id}>
-                            {editingId === conv.id ? (
-                                <input
-                                    className="w-full p-1 border rounded text-sm"
-                                    value={editTitle}
-                                    onChange={(e) =>
-                                        setEditTitle(e.target.value)
-                                    }
-                                    onBlur={() => updateTitle(conv.id)}
-                                    onKeyDown={(e) =>
-                                        e.key === "Enter" &&
-                                        updateTitle(conv.id)
-                                    }
-                                    autoFocus
-                                />
-                            ) : (
-                                <div
-                                    onDoubleClick={() => {
-                                        setEditingId(conv.id);
-                                        setEditTitle(conv.title ?? "");
-                                    }}
-                                    className="text-left w-full p-2 rounded hover:bg-gray-100 cursor-pointer"
-                                    onClick={() => loadConversation(conv.id)}
+                            <div className="flex items-center justify-between group p-2 rounded hover:bg-gray-100 cursor-pointer">
+                                {editingId === conv.id ? (
+                                    <input
+                                        className="w-full p-1 border rounded text-sm"
+                                        value={editTitle}
+                                        onChange={(e) =>
+                                            setEditTitle(e.target.value)
+                                        }
+                                        onBlur={() => updateTitle(conv.id)}
+                                        onKeyDown={(e) =>
+                                            e.key === "Enter" &&
+                                            updateTitle(conv.id)
+                                        }
+                                        autoFocus
+                                    />
+                                ) : (
+                                    <div
+                                        onDoubleClick={() => {
+                                            setEditingId(conv.id);
+                                            setEditTitle(conv.title ?? "");
+                                        }}
+                                        className="text-left w-full"
+                                        onClick={() => loadConversation(conv.id)}
+                                    >
+                                        {conv.title && conv.title.trim() !== ""
+                                            ? conv.title
+                                            : new Date(
+                                                  conv.startedAt
+                                              ).toLocaleString()}
+                                    </div>
+                                )}
+                                {/* Trash Icon */}
+                                <button
+                                    onClick={() => handleDelete(conv.id)}
+                                    className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 transition cursor-pointer"
                                 >
-                                    {conv.title && conv.title.trim() !== ""
-                                        ? conv.title
-                                        : new Date(
-                                              conv.startedAt
-                                          ).toLocaleString()}
-                                </div>
-                            )}
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
                         </li>
                     ))}
                 </ul>

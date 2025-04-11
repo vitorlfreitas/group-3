@@ -70,5 +70,10 @@ public class ConversationService {
         conversationRepository.save(convo);
     }
 
+    public void deleteConversation(Long conversationId) {
+        conversationRepository.deleteById(conversationId);
+    }
+
+
 
 }

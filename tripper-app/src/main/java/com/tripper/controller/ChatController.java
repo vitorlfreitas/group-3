@@ -96,4 +96,11 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{conversationId}")
+    public ResponseEntity<?> deleteConversation(@PathVariable Long conversationId) {
+        conversationService.deleteConversation(conversationId);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
