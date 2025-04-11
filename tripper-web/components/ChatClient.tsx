@@ -31,6 +31,9 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
         []
     );
 
+    const [editingId, setEditingId] = useState<number | null>(null);
+    const [editTitle, setEditTitle] = useState("");
+
     useEffect(() => {
         const socket = new SockJS("http://localhost:8080/ws-chat");
         const client = new Client({
@@ -71,7 +74,7 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
                     console.log("✅ Fetched history:", history);
                 } catch (err) {
                     console.error("❌ Failed to parse history JSON:", err);
-                } 
+                }
                 setMessages(history);
             }
 
@@ -134,8 +137,7 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
             try {
                 data = await res.json();
                 console.log("✅ Fetched conversations:", data);
-            }
-            catch (err) {
+            } catch (err) {
                 console.error("❌ Failed to parse conversations JSON:", err);
             }
             setUserConversations(data);
@@ -151,7 +153,7 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
         const res = await fetch(
             `http://localhost:8080/chat/${conversationId}/messages`
         );
-        let history; 
+        let history;
         try {
             history = await res.json();
             console.log("✅ Fetched conversation history:", history);
@@ -162,7 +164,21 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
         setMessages(history);
     };
 
-    
+    const updateTitle = async (id: number) => {
+        await fetch(`http://localhost:8080/chat/${id}/title`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: editTitle }),
+        });
+
+        // Refresh list
+        const res = await fetch(
+            `http://localhost:8080/chat/user/${user.email}`
+        );
+        const data = await res.json();
+        setUserConversations(data);
+        setEditingId(null);
+    };
 
     return (
         <main className="h-screen bg-gray-200 flex">
@@ -174,17 +190,36 @@ export default function ChatClient({ user }: { user: Session["user"] }) {
                 <ul className="space-y-2">
                     {userConversations.map((conv) => (
                         <li key={conv.id}>
-                            <button
-                                className={`text-left w-full p-2 rounded hover:bg-gray-100 ${
-                                    conversationId === conv.id
-                                        ? "bg-gray-100 font-semibold"
-                                        : ""
-                                }`}
-                                onClick={() => loadConversation(conv.id)}
-                            >
-                                {conv.title ||
-                                    new Date(conv.startedAt).toLocaleString()}
-                            </button>
+                            {editingId === conv.id ? (
+                                <input
+                                    className="w-full p-1 border rounded text-sm"
+                                    value={editTitle}
+                                    onChange={(e) =>
+                                        setEditTitle(e.target.value)
+                                    }
+                                    onBlur={() => updateTitle(conv.id)}
+                                    onKeyDown={(e) =>
+                                        e.key === "Enter" &&
+                                        updateTitle(conv.id)
+                                    }
+                                    autoFocus
+                                />
+                            ) : (
+                                <div
+                                    onDoubleClick={() => {
+                                        setEditingId(conv.id);
+                                        setEditTitle(conv.title ?? "");
+                                    }}
+                                    className="text-left w-full p-2 rounded hover:bg-gray-100 cursor-pointer"
+                                    onClick={() => loadConversation(conv.id)}
+                                >
+                                    {conv.title && conv.title.trim() !== ""
+                                        ? conv.title
+                                        : new Date(
+                                              conv.startedAt
+                                          ).toLocaleString()}
+                                </div>
+                            )}
                         </li>
                     ))}
                 </ul>

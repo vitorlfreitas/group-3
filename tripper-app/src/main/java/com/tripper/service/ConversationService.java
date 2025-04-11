@@ -62,4 +62,13 @@ public class ConversationService {
         return messageRepository.findByUserIdAndConversationId(userId, conversationId);
     }
 
+    public void updateConversationTitle(Long conversationId, String newTitle) {
+        Conversation convo = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new RuntimeException("Conversation not found"));
+
+        convo.setTitle(newTitle);
+        conversationRepository.save(convo);
+    }
+
+
 }

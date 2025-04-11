@@ -5,6 +5,7 @@ import com.tripper.model.Message;
 import com.tripper.service.ConversationService;
 import com.tripper.service.TripChatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -85,5 +86,14 @@ public class ChatController {
         return sb.toString();
     }
 
+    @PatchMapping("/{conversationId}/title")
+    public ResponseEntity<?> updateConversationTitle(
+            @PathVariable Long conversationId,
+            @RequestBody Map<String, String> payload
+    ) {
+        String newTitle = payload.get("title");
+        conversationService.updateConversationTitle(conversationId, newTitle);
+        return ResponseEntity.ok().build();
+    }
 
 }
