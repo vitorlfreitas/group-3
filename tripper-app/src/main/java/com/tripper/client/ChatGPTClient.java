@@ -74,17 +74,8 @@ public class ChatGPTClient {
                 return "I'm sorry, I couldn't generate a response.";
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return "Error: " + e.getMessage();
         }
     }
 
-    @PostConstruct
-    public void printEnv() {
-        System.getenv().forEach((k, v) -> {
-            if (k.contains("OPENAI")) {
-                System.out.println("🔍 ENV: " + k + " = " + v);
-            }
-        });
-    }
 }
