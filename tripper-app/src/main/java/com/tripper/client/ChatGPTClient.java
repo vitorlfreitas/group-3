@@ -24,6 +24,8 @@ public class ChatGPTClient {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Authorization", "Bearer " + API_KEY);
             connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("OpenAI-Project", "proj_vyXo6DEEcCsHKyIFxkxV2NSt");
+
             connection.setDoOutput(true);
 
             // Build JSON payload
