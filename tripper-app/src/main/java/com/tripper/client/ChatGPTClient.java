@@ -1,6 +1,7 @@
 package com.tripper.client;
 
 import com.google.gson.*;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.io.*;
@@ -74,5 +75,14 @@ public class ChatGPTClient {
             e.printStackTrace();
             return "Error: " + e.getMessage();
         }
+    }
+
+    @PostConstruct
+    public void printEnv() {
+        System.getenv().forEach((k, v) -> {
+            if (k.contains("OPENAI")) {
+                System.out.println("🔍 ENV: " + k + " = " + v);
+            }
+        });
     }
 }
