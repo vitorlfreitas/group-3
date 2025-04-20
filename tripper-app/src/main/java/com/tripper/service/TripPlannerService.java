@@ -23,25 +23,40 @@ public class TripPlannerService {
     @Autowired
     private WeatherService weatherService;
 
+    @Autowired
+    private NLPInputParser nlpParser;
+
     public TripResponse processTripRequest(TripRequest request) {
         // Initialize a TripResponse
         TripResponse response = new TripResponse();
 
-        // 1) Parse user input (trip details) with NLP
-        NLPInputParser nlpParser = new NLPInputParser();
-        TripDetails tripDetails = nlpParser.parseTripDetails(request.getTripDetails());
-        // (Optional) We don't do anything with tripDetails right now, but you could.
+        // 1) Parse input
+        TripDetails details = nlpParser.parseTripDetails(request.getTripDetails());
+        List<String> cities = details.getLocations();
 
-        // 2) (Optional) Enrich with weather data
-        // if you want to use it in GPT context
+        // 2) Build weather section
+        String weatherInfo = "";
         if (request.getLocation() != null && !request.getLocation().isEmpty()) {
-            var weather = weatherService.getForecastData(request.getLocation());
-            // You could pass weather data into conversationContext if you want
+
+            StringBuilder weatherSection = new StringBuilder();
+            for (String city : cities) {
+                var w = weatherService.getForecastData(city);
+                if (w != null && w.getList() != null && !w.getList().isEmpty()) {
+                    var f = w.getList().get(0);
+                    weatherSection
+                            .append("Based on the weather in ").append(w.getCity().getName()).append(": ")
+                            .append(f.getMain().getTemp()).append("°C, ")
+                            .append(f.getWeather().get(0).getDescription())
+                            .append("\n\n");
+                }
+            }
+            weatherInfo += weatherSection.toString();
         }
 
         // 3) Build ChatGPT prompt with strict format instructions
         String conversationContext =
                 "User trip details: " + request.getTripDetails() + "\n\n" +
+                        weatherInfo +
                         "Please output a structured travel recommendation in the following format, for each city involved:\n" +
                         "```\n" +
                         "**CITY NAME**\n" +
@@ -58,7 +73,7 @@ public class TripPlannerService {
 
         // 4) Call ChatGPT to get dynamic travel recommendations
         String dynamicResponse = chatGPTClient.getChatResponse(conversationContext);
-        response.setRecommendations(dynamicResponse); // store raw GPT output
+        response.setRecommendations(dynamicResponse);
 
         // 5) Parse structured sections from GPT’s formatted response
         List<TripChecklistSection> structuredSections = GPTChecklistParser.parse(dynamicResponse);
