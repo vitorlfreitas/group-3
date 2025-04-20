@@ -1,47 +1,58 @@
 package com.tripper.util;
 
 import com.tripper.model.TripDetails;
-import opennlp.tools.lemmatizer.DictionaryLemmatizer;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
+import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class NLPInputParser {
 
     private SentenceDetectorME sentenceDetector;
     private TokenizerME tokenizer;
     private POSTaggerME posTagger;
-    private DictionaryLemmatizer lemmatizer;
 
     public NLPInputParser() {
+
         try {
-            // Load sentence model
-            InputStream sentenceModelIn = getClass().getClassLoader().getResourceAsStream("models/opennlp-en-ud-ewt-sentence-1.2-2.5.0.bin");
-            SentenceModel sentModel = new SentenceModel(sentenceModelIn);
-            sentenceDetector = new SentenceDetectorME(sentModel);
-            sentenceModelIn.close();
+            // Sentence model
+            try (InputStream sentenceModelIn = getClass().getClassLoader().getResourceAsStream("models/opennlp-en-ud-ewt-sentence-1.2-2.5.0.bin")) {
+                if (sentenceModelIn == null) {
+                    throw new IllegalStateException("Sentence model not found");
+                }
+                SentenceModel sentModel = new SentenceModel(sentenceModelIn);
+                sentenceDetector = new SentenceDetectorME(sentModel);
+            }
 
-            // Load tokenizer model
-            InputStream tokenModelIn = getClass().getClassLoader().getResourceAsStream("models/opennlp-en-ud-ewt-tokens-1.2-2.5.0.bin");
-            TokenizerModel tokenizerModel = new TokenizerModel(tokenModelIn);
-            tokenizer = new TokenizerME(tokenizerModel);
-            tokenModelIn.close();
+            // Tokenizer model
+            try (InputStream tokenModelIn = getClass().getClassLoader().getResourceAsStream("models/opennlp-en-ud-ewt-tokens-1.2-2.5.0.bin")) {
+                if (tokenModelIn == null) {
+                    throw new IllegalStateException("Tokenizer model not found");
+                }
+                TokenizerModel tokenizerModel = new TokenizerModel(tokenModelIn);
+                tokenizer = new TokenizerME(tokenizerModel);
+            }
 
-            // Load POS tagger model
-            InputStream posModelIn = getClass().getClassLoader().getResourceAsStream("models/opennlp-en-ud-ewt-pos-1.2-2.5.0.bin");
-            POSModel posModel = new POSModel(posModelIn);
-            posTagger = new POSTaggerME(posModel);
-            posModelIn.close();
+            // POS tagger model
+            try (InputStream posModelIn = getClass().getClassLoader().getResourceAsStream("models/opennlp-en-ud-ewt-pos-1.2-2.5.0.bin")) {
+                if (posModelIn == null) {
+                    throw new IllegalStateException("POS tagger model not found");
+                }
+                POSModel posModel = new POSModel(posModelIn);
+                posTagger = new POSTaggerME(posModel);
+            }
+
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 
@@ -55,20 +66,16 @@ public class NLPInputParser {
             String[] tokens = tokenizer.tokenize(sentence);
             String[] tags = posTagger.tag(tokens);
 
-            if (lemmatizer != null) {
-                lemmatizer.lemmatize(tokens, tags); // just for demonstration
-            }
-
             StringBuilder currentEntity = new StringBuilder();
             for (int i = 0; i < tokens.length; i++) {
                 String token = tokens[i];
                 String tag = tags[i];
 
                 if (tag.equals("NNP") || tag.equals("NNPS")) {
-                    if (currentEntity.length() > 0) currentEntity.append(" ");
+                    if (!currentEntity.isEmpty()) currentEntity.append(" ");
                     currentEntity.append(token);
                 } else {
-                    if (currentEntity.length() > 0) {
+                    if (!currentEntity.isEmpty()) {
                         locations.add(currentEntity.toString());
                         currentEntity.setLength(0);
                     }
@@ -80,7 +87,7 @@ public class NLPInputParser {
                 }
             }
 
-            if (currentEntity.length() > 0) {
+            if (!currentEntity.isEmpty()) {
                 locations.add(currentEntity.toString());
             }
         }
