@@ -4,6 +4,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.*;
 
+/**
+ * WebSocketConfig class for configuring WebSocket communication in the application.
+ * This class implements WebSocketMessageBrokerConfigurer to customize WebSocket settings.
+ * It registers STOMP endpoints and configures the message broker.
+ *
+ * @see WebSocketMessageBrokerConfigurer
+ */
 @Configuration // Marks this class as a configuration class
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
