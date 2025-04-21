@@ -3,6 +3,7 @@ package com.tripper.dto;
 import com.tripper.model.Message;
 
 public class OutgoingMessageDTO {
+
     private String sender;
     private String content;
     private String timestamp;

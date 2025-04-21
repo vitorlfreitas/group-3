@@ -36,8 +36,6 @@ public class TripChatService {
                 .map(Message::getContent)
                 .orElse("");
 
-//        String lastUserLower = lastUserMessage.trim().toLowerCase();
-//        boolean isGreeting = lastUserLower.matches("(?i)\\b(hi|hello|hey|howdy|greetings)\\b");
 
         Map<String, Object> extracted = tripInfoExtractionService.extract(lastUserMessage);
         List<String> locations = (List<String>) extracted.get("locations");

@@ -8,7 +8,7 @@ import com.tripper.model.TripRequest;
 import com.tripper.model.TripResponse;
 import com.tripper.util.GPTChecklistParser;
 import com.tripper.util.NLPInputParser;
-import com.tripper.util.PDFGenerator;
+//import com.tripper.util.PDFGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -78,12 +78,12 @@ public class TripPlannerService {
         // 5) Parse structured sections from GPT’s formatted response
         List<TripChecklistSection> structuredSections = GPTChecklistParser.parse(dynamicResponse);
 
-        // 6) Generate PDF if requested
-        if (request.isGeneratePdf()) {
-            String pdfFileName = request.getUserName() + "_TripChecklist.pdf";
-            PDFGenerator.generateStructuredChecklist(pdfFileName, request.getUserName(), structuredSections);
-            response.setPdfFileName(pdfFileName);
-        }
+//        // 6) Generate PDF if requested
+//        if (request.isGeneratePdf()) {
+//            String pdfFileName = request.getUserName() + "_TripChecklist.pdf";
+//            PDFGenerator.generateStructuredChecklist(pdfFileName, request.getUserName(), structuredSections);
+//            response.setPdfFileName(pdfFileName);
+//        }
 
         // 7) Fill out basic response details
         response.setUserName(request.getUserName());

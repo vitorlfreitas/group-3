@@ -27,9 +27,6 @@ public class ChatSocketController {
     @MessageMapping("/chat.send") // Maps incoming WebSocket messages to this method
     public void handleChat(@Payload MessageDTO incomingMessage) {
 
-        // Log the incoming message for debugging
-        System.out.println("Received message: " + incomingMessage.getContent());
-
         // Extract conversation ID from the incoming message
         Long conversationId = incomingMessage.getConversationId();
 

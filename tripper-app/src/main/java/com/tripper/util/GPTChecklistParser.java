@@ -121,7 +121,7 @@ public class GPTChecklistParser {
         switch (heading.toLowerCase()) {
             case "weather" -> {
                 // If there's bullet lines, combine them with the text lines
-                // Often you'll have text describing the weather + bullet lines
+                // Often you'll have text describing the weather and bullet lines
                 String combined = String.join(" ", textLines);
                 if (!bulletItems.isEmpty()) {
                     combined += (combined.isEmpty() ? "" : " ") + String.join(". ", bulletItems);
@@ -132,7 +132,7 @@ public class GPTChecklistParser {
             case "accessories" -> section.setAccessories(bulletItems);
             case "optional" -> section.setOptionalItems(bulletItems);
             default -> {
-                // Could store as "notes" or ignore
+                // Ignore
             }
         }
     }
