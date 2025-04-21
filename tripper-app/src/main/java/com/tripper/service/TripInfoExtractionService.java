@@ -1,8 +1,8 @@
 package com.tripper.service;
 
 import com.tripper.client.GoogleMapsService;
+import com.tripper.dto.TripInfo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -27,16 +27,17 @@ public class TripInfoExtractionService {
             "(?i)(next week|this week|\\d{1,2}/\\d{1,2}|\\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\\b)"
     );
 
-    public Map<String, Object> extract(String text) {
+    public TripInfo extract(String text) {
+
         List<String> locations = new ArrayList<>();
-        Set<String> dates = new HashSet<>();
+        Set<String> datesSet  = new HashSet<>();
 
         // Normalize and split text
         String[] words = text.split("\\s+");
         Set<String> stopWords = Set.of("to", "in", "at", "on", "from", "the");
         Set<String> verbStarters = Set.of("am", "is", "are", "was", "were", "have", "had", "planning");
 
-        // Try sliding window (3 words, 2 words, 1 word)
+        // Try "sliding window" (3 words, 2 words, 1 word)
         for (int i = 0; i < words.length; i++) {
             for (int window = 3; window >= 1; window--) {
                 if (i + window > words.length) continue;
@@ -77,19 +78,17 @@ public class TripInfoExtractionService {
         // Dates: keywords and regex
         String lower = text.toLowerCase();
         for (String phrase : DATE_PHRASES) {
-            if (lower.contains(phrase)) dates.add(phrase);
+            if (lower.contains(phrase)) datesSet.add(phrase);
         }
 
         for (String word : words) {
             if (MONTHS.contains(word.toLowerCase()) || DATE_PATTERN.matcher(word).find()) {
-                dates.add(word);
+                datesSet.add(word);
             }
         }
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("locations", locations);
-        result.put("dates", new ArrayList<>(dates));
-        return result;
+        List<String> dates = new ArrayList<>(datesSet);
+        return new TripInfo(locations, dates);
     }
 
 }

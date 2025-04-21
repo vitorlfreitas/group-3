@@ -2,13 +2,12 @@ package com.tripper.service;
 
 import com.tripper.client.ChatGPTClient;
 import com.tripper.client.WeatherService;
-import com.tripper.model.Message;
+import com.tripper.dto.TripInfo;
 import com.tripper.model.WeatherResponse;
+import com.tripper.repository.MessageView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,19 +20,20 @@ public class TripChatService {
 
     public String chatWithGPT(Long conversationId) {
 
-        List<Message> messages = conversationService.getConversationMessages(conversationId);
+        List<MessageView> messages = conversationService.getConversationMessages(conversationId);
         String conversationText = buildPromptFromMessages(messages);
 
         String lastUserMessage = messages.stream()
                 .filter(m -> "user".equalsIgnoreCase(m.getSender()))
                 .reduce((first, second) -> second)
-                .map(Message::getContent)
+                .map(MessageView::getContent)
                 .orElse("");
 
 
-        Map<String, Object> extracted = tripInfoExtractionService.extract(lastUserMessage);
-        List<String> locations = (List<String>) extracted.get("locations");
-        List<String> dates = (List<String>) extracted.get("dates");
+        TripInfo info      = tripInfoExtractionService.extract(lastUserMessage);
+        List<String> locations = info.locations();
+        List<String> dates     = info.dates();
+
 
         String weatherInfo = "";
         if (locations != null && !locations.isEmpty()) {
@@ -75,15 +75,12 @@ public class TripChatService {
         return chatGPTClient.getChatResponse(prompt.toString());
     }
 
-    private String buildPromptFromMessages(List<Message> messages) {
+    private String buildPromptFromMessages(List<MessageView> messages) {
         StringBuilder prompt = new StringBuilder();
-        for (Message msg : messages) {
-            if ("user".equalsIgnoreCase(msg.getSender())) {
-                prompt.append(msg.getContent()).append("\n");
-            } else {
-                prompt.append(msg.getContent()).append("\n");
-            }
+        for (MessageView msg : messages) {
+            prompt.append(msg.getContent()).append("\n");
         }
         return prompt.toString();
     }
+
 }

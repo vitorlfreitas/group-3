@@ -2,6 +2,7 @@ package com.tripper.controller;
 
 import com.tripper.model.Conversation;
 import com.tripper.model.Message;
+import com.tripper.repository.MessageView;
 import com.tripper.service.ConversationService;
 import com.tripper.service.TripChatService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class ChatController {
 
     // Send a user message and get assistant reply
     @PostMapping("/{conversationId}/message")
-    public List<Message> chat(
+    public List<MessageView> chat(
             @PathVariable Long conversationId,
             @RequestBody Map<String, String> payload
     ) {
@@ -59,7 +60,7 @@ public class ChatController {
 
     // Get message history for a conversation
     @GetMapping("/{conversationId}/messages")
-    public List<Message> getMessages(@PathVariable Long conversationId) {
+    public List<MessageView> getMessages(@PathVariable Long conversationId) {
         return conversationService.getConversationMessages(conversationId);
     }
 

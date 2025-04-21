@@ -26,11 +26,11 @@ public class Message {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private final LocalDateTime timestamp = LocalDateTime.now();
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "conversation_id")
+    @JoinColumn(name = "conversation_id", nullable = false)
     @JsonBackReference
     private Conversation conversation;
 

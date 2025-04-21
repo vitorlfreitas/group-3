@@ -4,13 +4,13 @@ import com.tripper.model.Conversation;
 import com.tripper.model.Message;
 import com.tripper.repository.ConversationRepository;
 import com.tripper.repository.MessageRepository;
+import com.tripper.repository.MessageView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,11 +38,8 @@ public class ConversationService {
     }
 
     // Get messages in a conversation
-    public List<Message> getConversationMessages(Long conversationId) {
-        Optional<Conversation> conversationOpt = conversationRepository.findById(conversationId);
-        return conversationOpt
-                .map(messageRepository::findByConversationOrderByTimestampAsc)
-                .orElse(List.of());
+    public List<MessageView> getConversationMessages(Long conversationId) {
+        return messageRepository.findByConversationIdOrderByTimestampAsc(conversationId);
     }
 
     // Add a new message to a conversation
@@ -64,8 +61,8 @@ public class ConversationService {
     }
 
     public void updateConversationTitle(Long conversationId, String newTitle) {
-        Conversation convo = conversationRepository.findById(conversationId)
-                .orElseThrow(() -> new RuntimeException("Conversation not found"));
+
+        Conversation convo = conversationRepository.getReferenceById(conversationId);
 
         convo.setTitle(newTitle);
         conversationRepository.save(convo);
@@ -76,8 +73,8 @@ public class ConversationService {
     }
 
     public byte[] generateConversationPdf(Long conversationId) {
-        Conversation conversation = conversationRepository.findById(conversationId)
-                .orElseThrow(() -> new RuntimeException("Conversation not found"));
+
+        Conversation conversation = conversationRepository.getReferenceById(conversationId);
 
         List<Message> messages = messageRepository.findByConversationId(conversationId);
 
@@ -112,7 +109,6 @@ public class ConversationService {
                 displayName
         );
     }
-
 
     public Conversation getConversationById(Long id) {
         return conversationRepository.findById(id)

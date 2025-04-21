@@ -2,8 +2,8 @@ package com.tripper.controller;
 
 import com.tripper.dto.OutgoingMessageDTO;
 import com.tripper.mapper.MessageMapper;
-import com.tripper.model.Message;
 import com.tripper.dto.MessageDTO;
+import com.tripper.repository.MessageView;
 import com.tripper.service.ConversationService;
 import com.tripper.service.TripChatService;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +44,7 @@ public class ChatSocketController {
         conversationService.addMessage(conversationId, "assistant", reply, userId);
 
         // Fetch the full updated conversation history
-        List<Message> messages = conversationService.getConversationMessages(conversationId);
-
+        List<MessageView> messages = conversationService.getConversationMessages(conversationId);
 
         /*
          * Convert the list of messages to DTOs
