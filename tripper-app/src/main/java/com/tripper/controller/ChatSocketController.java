@@ -2,7 +2,7 @@ package com.tripper.controller;
 
 import com.tripper.dto.OutgoingMessageDTO;
 import com.tripper.model.Message;
-import com.tripper.model.MessageDTO;
+import com.tripper.dto.MessageDTO;
 import com.tripper.service.ConversationService;
 import com.tripper.service.TripChatService;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +24,13 @@ public class ChatSocketController {
     public void handleChat(@Payload MessageDTO incomingMessage) {
 
         // Extract conversation ID from the incoming message
-        Long conversationId = incomingMessage.getConversationId();
+        Long conversationId = incomingMessage.conversationId();
 
         // Extract user ID from the incoming message
-        String userId = incomingMessage.getUserId();
+        String userId = incomingMessage.userId();
 
         // Extract user message content from the incoming message
-        String userContent = incomingMessage.getContent();
+        String userContent = incomingMessage.content();
 
         // Save the user's message to the conversation
         conversationService.addMessage(conversationId, "user", userContent, userId);
