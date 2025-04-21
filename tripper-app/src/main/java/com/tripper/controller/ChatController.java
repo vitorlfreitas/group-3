@@ -4,7 +4,7 @@ import com.tripper.model.Conversation;
 import com.tripper.model.Message;
 import com.tripper.service.ConversationService;
 import com.tripper.service.TripChatService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,15 +15,13 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/chat")
+@RequiredArgsConstructor
 public class ChatController {
 
     private static final String DEFAULT_USER_ID = "anonymous";
 
-    @Autowired
-    private ConversationService conversationService;
-
-    @Autowired
-    private TripChatService tripChatService;
+    private final ConversationService conversationService;
+    private final TripChatService tripChatService;
 
     // Start a new conversation for a user
     @PostMapping("/start")
