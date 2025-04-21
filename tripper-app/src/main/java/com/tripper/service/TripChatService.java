@@ -8,6 +8,7 @@ import com.tripper.repository.MessageView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,23 +37,31 @@ public class TripChatService {
 
 
         String weatherInfo = "";
-        if (locations != null && !locations.isEmpty()) {
-            for (String city : locations) {
-                WeatherResponse weatherResponse = weatherService.getForecastData(city);
-                if (weatherResponse != null &&
-                        weatherResponse.getCity() != null &&
-                        weatherResponse.getList() != null &&
-                        !weatherResponse.getList().isEmpty()) {
 
-                    WeatherResponse.Forecast forecast = weatherResponse.getList().get(0);
+        for (String city : locations) {
+            Optional<WeatherResponse> maybeResp = weatherService.getForecastData(city);
 
-                    weatherInfo = "Based on the weather in " + weatherResponse.getCity().getName() +
-                            " (" + forecast.getMain().getTemp() + "°C, " +
-                            forecast.getWeather().get(0).getDescription() + "), ";
-                    break;
-                }
+            if (maybeResp.isEmpty()) {
+                continue;
             }
+
+            WeatherResponse resp = maybeResp.get();
+            if (resp.getCity() == null ||
+                    resp.getList() == null ||
+                    resp.getList().isEmpty()) {
+                continue;
+            }
+
+            WeatherResponse.Forecast forecast = resp.getList().get(0);
+            weatherInfo = String.format(
+                    "Based on the weather in %s (%.1f°C, %s), ",
+                    resp.getCity().getName(),
+                    forecast.getMain().getTemp(),
+                    forecast.getWeather().get(0).getDescription()
+            );
+            break;
         }
+
 
         StringBuilder prompt = new StringBuilder();
         prompt.append("You are Tripper, a friendly and helpful travel assistant chatbot.\n\n");

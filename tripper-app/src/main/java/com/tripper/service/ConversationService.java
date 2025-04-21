@@ -6,6 +6,7 @@ import com.tripper.repository.ConversationRepository;
 import com.tripper.repository.MessageRepository;
 import com.tripper.repository.MessageView;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -38,6 +39,7 @@ public class ConversationService {
     }
 
     // Get messages in a conversation
+    @Cacheable("conversations")
     public List<MessageView> getConversationMessages(Long conversationId) {
         return messageRepository.findByConversationIdOrderByTimestampAsc(conversationId);
     }
