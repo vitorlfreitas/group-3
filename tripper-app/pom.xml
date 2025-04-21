@@ -99,20 +99,6 @@
 			<version>2.5.3</version>
 		</dependency>
 
-<!--		&lt;!&ndash; Apache PDFBox for working with PDF files &ndash;&gt;-->
-<!--		<dependency>-->
-<!--			<groupId>org.apache.pdfbox</groupId>-->
-<!--			<artifactId>pdfbox</artifactId>-->
-<!--			<version>2.0.33</version>-->
-<!--		</dependency>-->
-
-<!--		&lt;!&ndash; PDFBox Layout for advanced PDF layout and styling &ndash;&gt;-->
-<!--		<dependency>-->
-<!--			<groupId>com.github.ralfstuckert.pdfbox-layout</groupId>-->
-<!--			<artifactId>pdfbox2-layout</artifactId>-->
-<!--			<version>1.0.1</version>-->
-<!--		</dependency>-->
-
 		<!-- Jakarta Persistence API for JPA annotations and interfaces -->
 		<dependency>
 			<groupId>jakarta.persistence</groupId>

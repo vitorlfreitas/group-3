@@ -5,7 +5,7 @@ import com.tripper.model.Message;
 import com.tripper.model.MessageDTO;
 import com.tripper.service.ConversationService;
 import com.tripper.service.TripChatService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -13,16 +13,12 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 
 @Controller // Marks this class as a Spring MVC Controller
+@RequiredArgsConstructor
 public class ChatSocketController {
 
-    @Autowired // Injects the ConversationService bean
-    private ConversationService conversationService;
-
-    @Autowired // Injects the TripChatService bean
-    private TripChatService tripChatService;
-
-    @Autowired // Injects the SimpMessagingTemplate bean for WebSocket messaging
-    private SimpMessagingTemplate messagingTemplate;
+    private final ConversationService conversationService;
+    private final TripChatService tripChatService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/chat.send") // Maps incoming WebSocket messages to this method
     public void handleChat(@Payload MessageDTO incomingMessage) {
