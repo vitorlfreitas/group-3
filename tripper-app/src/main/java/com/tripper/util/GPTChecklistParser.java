@@ -9,8 +9,6 @@ public class GPTChecklistParser {
 
     /**
      * Splits the GPT response into city-based sections by looking for lines like: **CITY NAME**
-     * Then for each city block, we parse headings:
-     * **Weather:**, **Clothing:**, **Accessories:**, **Optional Items:**, line by line.
      */
     public static List<TripChecklistSection> parse(String gptText) {
         List<TripChecklistSection> sections = new ArrayList<>();
@@ -48,9 +46,7 @@ public class GPTChecklistParser {
     }
 
     /**
-     * Parses the lines for a single city. We look for headings like:
-     * **Weather:**, **Clothing:**, **Accessories:**, **Optional Items:**
-     * Then store bullet lines under the correct heading.
+     * Parses the lines for a single city.
      */
     private static TripChecklistSection parseCityBlock(String cityName, List<String> lines) {
         TripChecklistSection section = new TripChecklistSection();
@@ -120,8 +116,6 @@ public class GPTChecklistParser {
 
         switch (heading.toLowerCase()) {
             case "weather" -> {
-                // If there's bullet lines, combine them with the text lines
-                // Often you'll have text describing the weather and bullet lines
                 String combined = String.join(" ", textLines);
                 if (!bulletItems.isEmpty()) {
                     combined += (combined.isEmpty() ? "" : " ") + String.join(". ", bulletItems);
