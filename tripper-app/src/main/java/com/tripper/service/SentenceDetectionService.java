@@ -18,7 +18,7 @@ public class SentenceDetectionService {
             SentenceModel model = new SentenceModel(modelIn);
             sentenceDetector = new SentenceDetectorME(model);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 

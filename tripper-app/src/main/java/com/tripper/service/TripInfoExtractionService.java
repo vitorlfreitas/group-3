@@ -1,6 +1,7 @@
 package com.tripper.service;
 
 import com.tripper.client.GoogleMapsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -8,10 +9,10 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
+@RequiredArgsConstructor
 public class TripInfoExtractionService {
 
-    @Autowired
-    private GoogleMapsService googleMapsService;
+    private final GoogleMapsService googleMapsService;
 
     private final List<String> MONTHS = Arrays.asList(
             "january", "february", "march", "april", "may", "june",

@@ -4,7 +4,7 @@ import com.tripper.model.Conversation;
 import com.tripper.model.Message;
 import com.tripper.repository.ConversationRepository;
 import com.tripper.repository.MessageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,16 +14,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ConversationService {
 
-    @Autowired
-    private ConversationRepository conversationRepository;
-
-    @Autowired
-    private MessageRepository messageRepository;
-
-    @Autowired
-    private PdfGeneratorService pdfGeneratorService;
+    private final ConversationRepository conversationRepository;
+    private final MessageRepository messageRepository;
+    private final PdfGeneratorService pdfGeneratorService;
 
     // Create a new conversation for a user
     public Conversation startNewConversation(String userId) {
@@ -95,7 +91,7 @@ public class ConversationService {
         String displayName = "User";
         if (conversation.getUserId() != null) {
             displayName = conversation.getUserId().split("@")[0];
-            displayName = Arrays.stream(displayName.split("[\\.\\-_]"))
+            displayName = Arrays.stream(displayName.split("[\\-_]"))
                     .map(s -> s.substring(0, 1).toUpperCase() + s.substring(1))
                     .collect(Collectors.joining(" "));
         }

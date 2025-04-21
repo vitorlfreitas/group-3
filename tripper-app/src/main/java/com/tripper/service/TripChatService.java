@@ -4,26 +4,20 @@ import com.tripper.client.ChatGPTClient;
 import com.tripper.client.WeatherService;
 import com.tripper.model.Message;
 import com.tripper.model.WeatherResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class TripChatService {
 
-    @Autowired
-    private ChatGPTClient chatGPTClient;
-
-    @Autowired
-    private ConversationService conversationService;
-
-    @Autowired
-    private TripInfoExtractionService tripInfoExtractionService;
-
-    @Autowired
-    private WeatherService weatherService;
+    private final ChatGPTClient chatGPTClient;
+    private final ConversationService conversationService;
+    private final TripInfoExtractionService tripInfoExtractionService;
+    private final WeatherService weatherService;
 
     public String chatWithGPT(Long conversationId) {
 
