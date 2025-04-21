@@ -1,6 +1,7 @@
 package com.tripper.controller;
 
 import com.tripper.dto.OutgoingMessageDTO;
+import com.tripper.mapper.MessageMapper;
 import com.tripper.model.Message;
 import com.tripper.dto.MessageDTO;
 import com.tripper.service.ConversationService;
@@ -19,6 +20,7 @@ public class ChatSocketController {
     private final ConversationService conversationService;
     private final TripChatService tripChatService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final MessageMapper messageMapper;
 
     @MessageMapping("/chat.send") // Maps incoming WebSocket messages to this method
     public void handleChat(@Payload MessageDTO incomingMessage) {
@@ -44,9 +46,14 @@ public class ChatSocketController {
         // Fetch the full updated conversation history
         List<Message> messages = conversationService.getConversationMessages(conversationId);
 
-        List<OutgoingMessageDTO> dtoMessages = messages.stream()
-                .map(OutgoingMessageDTO::from)
-                .toList();
+
+        /*
+         * Convert the list of messages to DTOs
+         * This is necessary for sending the messages over WebSocket
+         * as the front-end expects data in a specific format
+         * defined by the OutgoingMessageDTO class.
+         */
+        List<OutgoingMessageDTO> dtoMessages = messageMapper.toDtoList(messages);
 
         messagingTemplate.convertAndSend("/topic/chat/" + conversationId, dtoMessages);
     }
