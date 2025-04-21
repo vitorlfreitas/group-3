@@ -17,6 +17,8 @@ import java.util.*;
 @RequestMapping("/chat")
 public class ChatController {
 
+    private static final String DEFAULT_USER_ID = "anonymous";
+
     @Autowired
     private ConversationService conversationService;
 
@@ -26,12 +28,12 @@ public class ChatController {
     // Start a new conversation for a user
     @PostMapping("/start")
     public Map<String, Object> startConversation(@RequestBody Map<String, String> request) {
-        String userId = request.getOrDefault("userId", "anonymous");
+
+        String userId = request.getOrDefault("userId", DEFAULT_USER_ID);
+
         Conversation convo = conversationService.startNewConversation(userId);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("conversationId", convo.getId());
-        return response;
+        return Collections.singletonMap("conversationId", convo.getId());
     }
 
     // Send a user message and get assistant reply
@@ -40,15 +42,12 @@ public class ChatController {
             @PathVariable Long conversationId,
             @RequestBody Map<String, String> payload
     ) {
-        String userId = payload.getOrDefault("userId", "anonymous");
+
+        String userId = payload.getOrDefault("userId", DEFAULT_USER_ID);
         String userMessage = payload.get("message");
 
         // Save user message
         conversationService.addMessage(conversationId, "user", userMessage, userId);
-
-        // Fetch chat history for context
-        List<Message> history = conversationService.getConversationMessages(conversationId);
-        String context = buildPromptFromHistory(history);
 
         // Call ChatGPT via TripChatService
         String botReply = tripChatService.chatWithGPT(conversationId);
@@ -72,21 +71,13 @@ public class ChatController {
         return conversationService.getUserConversations(userId);
     }
 
+    // Get messages by user ID and conversation ID
     @GetMapping("/history")
     public List<Message> getUserMessages(
             @RequestParam String userId,
             @RequestParam Long conversationId
     ) {
         return conversationService.getMessagesByUserAndConversation(userId, conversationId);
-    }
-
-    // Helper to build prompt
-    private String buildPromptFromHistory(List<Message> history) {
-        StringBuilder sb = new StringBuilder();
-        for (Message msg : history) {
-            sb.append(msg.getSender()).append(": ").append(msg.getContent()).append("\n");
-        }
-        return sb.toString();
     }
 
     @PatchMapping("/{conversationId}/title")
@@ -127,8 +118,4 @@ public class ChatController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-
-
-
 }
