@@ -10,6 +10,9 @@ import org.springframework.web.socket.config.annotation.*;
  * It registers STOMP endpoints and configures the message broker.
  *
  * @see WebSocketMessageBrokerConfigurer
+ * 
+ * @author vitorlfreitas
+ * @version 1.0.1
  */
 @Configuration // Marks this class as a configuration class
 @EnableWebSocketMessageBroker

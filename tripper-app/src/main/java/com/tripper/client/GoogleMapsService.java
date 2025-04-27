@@ -10,12 +10,18 @@ import org.springframework.stereotype.Service;
  * It validates locations by checking if a given place name corresponds to a valid geographical location.
  * The API key is injected from application properties.
  *
+ * @see GeocodingApi
+ * @see GeocodingResult
+ * @see GeoApiContext
+ * @see <a href="https://developers.google.com/maps/documentation/geocoding/start">Google Maps Geocoding API</a>
+ * 
  * @author vitorlfreitas
  * @version 1.0.1
  */
 @Service
 public class GoogleMapsService {
 
+    // GeoApiContext is used to configure the API client with the provided API key
     private final GeoApiContext context;
 
     // Constructor that initializes the GeoApiContext with the provided API key
@@ -25,14 +31,33 @@ public class GoogleMapsService {
                 .build();
     }
 
-    // Method to validate if a given place name corresponds to a valid location
+    /**
+     * Validates if the given place name corresponds to a valid geographical location.
+     *
+     * @param place the name of the place to validate
+     * @return true if the place is valid, false otherwise
+     * @throws Exception if there is an error during the geocoding process
+     * 
+     * @see GeocodingApi
+     * @see GeocodingResult
+     * @see GeoApiContext
+     * @see <a href="https://developers.google.com/maps/documentation/geocoding/start">Google Maps Geocoding API</a>
+     * 
+     * @author vitorlfreitas
+     * @version 1.0.1
+     */
     public boolean isValidLocation(String place) {
         try {
+
             GeocodingResult[] results = GeocodingApi.geocode(context, place).await();
             return results.length > 0;
-        } catch (Exception e) {
+        
+        } 
+        catch (Exception e) {
+        
             System.err.println("Geocoding error: " + e.getMessage());
             return false;
+            
         }
     }
 }

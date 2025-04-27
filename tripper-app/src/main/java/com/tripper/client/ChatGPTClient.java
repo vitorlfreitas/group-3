@@ -11,6 +11,8 @@ import java.nio.charset.StandardCharsets;
  * ChatGPTClient is a component that interacts with the OpenAI API to get responses from the ChatGPT model.
  * It sends conversation context to the API and receives a response based on the provided context.
  * The API key and URL are injected from application properties.
+ * 
+ * @see <a href="https://platform.openai.com/docs/api-reference/chat/create">OpenAI API Reference</a>
  *
  * @author vitorlfreitas
  * @version 1.0.1
@@ -22,6 +24,27 @@ public class ChatGPTClient {
 
     @Value("${openai.api.url}") private String API_URL;
 
+    /**
+     * Sends a conversation context to the OpenAI API and retrieves a response.
+     * This method constructs a JSON payload with the conversation context,
+     * sends it to the OpenAI API, and processes the response.
+     *
+     * @param conversationContext The context of the conversation to send to the API.
+     * @return The response from the API.
+     * @throws IOException If an I/O error occurs during the API call.
+     * @throws URISyntaxException If the URL is malformed.
+     * @throws JsonParseException If the response JSON is malformed.
+     * @throws JsonIOException If there is an error during JSON parsing.
+     * @throws JsonSyntaxException If the JSON syntax is incorrect.
+     * @throws IllegalStateException If the API response is not as expected.
+     * @throws NullPointerException If the API key or URL is null.
+     * @throws Exception If any other exception occurs.
+     * 
+     * @see <a href="https://platform.openai.com/docs/api-reference/chat/create">OpenAI API Reference</a>
+     * 
+     * @author vitorlfreitas
+     * @version 1.0.1
+     */
     public String getChatResponse(String conversationContext) {
         try {
             // Set up the connection to the OpenAI API
@@ -57,24 +80,33 @@ public class ChatGPTClient {
 
             payload.add("messages", messages);
 
-            // Send the request
+            // Send the request payload to the API
             try (OutputStream os = connection.getOutputStream()) {
                 os.write(payload.toString().getBytes(StandardCharsets.UTF_8));
             }
 
-            // Read the response
+            // Read the response from the API
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+            
+            // Check if the response code is 200 (HTTP_OK)
             StringBuilder response = new StringBuilder();
+
+            // Read the response line by line
+            // Using StringBuilder to accumulate the response
+            // Using BufferedReader to read the response
             String line;
             while ((line = in.readLine()) != null) {
                 response.append(line);
             }
             in.close();
 
-            // Parse the response JSON using Gson
+            // Parse the response JSON using Gson library
             JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
             JsonArray choices = jsonResponse.getAsJsonArray("choices");
 
+            // Check if the choices array is not empty
+            // If not empty, get the first choice and extract the message content
+            // If empty, return a default message
             if (!choices.isEmpty()) {
 
                 JsonObject firstChoice = choices.get(0).getAsJsonObject();
@@ -84,9 +116,10 @@ public class ChatGPTClient {
             } else {
                 return "I'm sorry, I couldn't generate a response.";
             }
-        } catch (Exception e) {
+        } 
+        // Handle exceptions that may occur during the API call
+        catch (Exception e) {
             return "Error: " + e.getMessage();
         }
     }
-
 }

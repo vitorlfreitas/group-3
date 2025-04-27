@@ -35,7 +35,27 @@ public class WeatherService {
         this.webClient = webClientBuilder.baseUrl(props.getUrl()).build();
     }
 
-    // Method to fetch weather forecast data for a specific location
+    /**
+     * Fetches weather forecast data for a given location.
+     * The method is annotated with @Cacheable to cache the result
+     * based on the location parameter. The cache key is the location
+     * in lowercase, and the result is cached unless it is empty.
+     *
+     * @param location the location for which to fetch weather data
+     * @return an Optional containing the WeatherResponse if successful, or an empty Optional if an error occurs
+     * @throws WebClientResponseException if the API returns an error response
+     * @throws Exception if any other error occurs during the request
+     * 
+     * @Cacheable annotation is used to cache the result of the method.
+     * 
+     * @see WeatherResponse
+     * @see OpenWeatherProperties
+     * @see WebClient
+     * @see <a href="https://openweathermap.org/api">OpenWeather API</a>
+     * 
+     * @author vitorlfreitas
+     * @version 1.0.1
+     */
     @Cacheable(value = "weather", key = "#location.toLowerCase()", unless = "#result.isEmpty()")
     public Optional<WeatherResponse> getForecastData(String location) {
         try {
