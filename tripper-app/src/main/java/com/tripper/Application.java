@@ -12,6 +12,9 @@ import org.springframework.cache.annotation.EnableCaching;
  *
  * @see SpringBootApplication
  * @see EnableCaching
+ *
+ * @author vitorlfreitas
+ * @version 1.0.1
  * */
 @EnableCaching
 @SpringBootApplication
@@ -20,6 +23,5 @@ public class Application {
 	public static void main(String[] args) {
 
 		SpringApplication.run(Application.class, args);
-
 	}
 }

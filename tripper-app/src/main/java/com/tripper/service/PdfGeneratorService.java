@@ -6,6 +6,15 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 
+/**
+ * PdfGeneratorService is a service class that generates a PDF document from text content.
+ * It uses the iText library to create the PDF and format the content with different fonts and styles.
+ * 
+ * @author vitorlfreitas
+ * @version 1.0.1
+ * 
+ * @see <a href="https://itextpdf.com/en/resources/examples">iText Examples</a>
+ */
 @Service
 public class PdfGeneratorService {
 
@@ -63,7 +72,6 @@ public class PdfGeneratorService {
                     document.add(messagePara);
                 } else {
 
-
                     Paragraph contPara = new Paragraph(line, messageFont);
                     contPara.setIndentationLeft(20f);
                     contPara.setSpacingAfter(10f);
@@ -78,8 +86,4 @@ public class PdfGeneratorService {
             throw new RuntimeException("Failed to generate PDF", e);
         }
     }
-
-
-
-
 }

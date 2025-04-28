@@ -7,6 +7,15 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 
+/**
+ * SentenceDetectionService is a service class that detects sentences in a given paragraph.
+ * It uses the OpenNLP library to perform sentence detection.
+ * 
+ * @author vitorlfreitas
+ * @version 1.0.1
+ * 
+ * @see <a href="https://opennlp.apache.org/models.html">OpenNLP Models</a>
+ */
 @Service
 public class SentenceDetectionService {
 

@@ -8,6 +8,14 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Conversation is an entity class that represents a conversation in the system.
+ * It contains information about the conversation, including its ID, user ID,
+ * creation time, messages, start time, and title.
+ *
+ * @author vitorlfreitas
+ * @version 1.0.1
+ */
 @Getter
 @Entity
 public class Conversation {

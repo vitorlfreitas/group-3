@@ -16,6 +16,7 @@ import java.util.List;
  * @see OutgoingMessageDTO
  *
  * @author vitorlfreitas
+ * @version 1.0.1
  */
 @Mapper(componentModel = "spring")
 public interface MessageMapper {

@@ -53,7 +53,6 @@ public class WeatherService {
      * @author vitorlfreitas
      */
     @Cacheable(value = "forecastCache", unless = "#result == null || #result.list == null || #result.list.isEmpty()")
-
     public Optional<WeatherResponse> getForecastData(String location) {
         try {
             return Optional.ofNullable(

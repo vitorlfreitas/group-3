@@ -12,6 +12,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * TripPlannerService is a service class that provides methods to process trip requests
+ * and generate travel recommendations using ChatGPT and weather data.
+ *
+ * @author vitorlfreitas
+ * @version 1.0.1
+ */
 @Service
 @RequiredArgsConstructor
 public class TripPlannerService {

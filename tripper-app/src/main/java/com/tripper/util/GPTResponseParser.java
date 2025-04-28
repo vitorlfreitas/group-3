@@ -5,6 +5,13 @@ import com.tripper.model.TripChecklistSection;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * GPTResponseParser is a utility class that provides methods to parse and create
+ * trip checklist sections based on example responses.
+ *
+ * @author vitorlfreitas
+ * @version 1.0.1
+ */
 public class GPTResponseParser {
 
     public static List<TripChecklistSection> parseFromExampleResponse() {

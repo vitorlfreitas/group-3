@@ -10,6 +10,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * TripChatService is a service class that provides methods to interact with the ChatGPT API
+ * for travel-related queries. It includes methods to chat with the GPT model and extract trip information.
+ *
+ * @author vitorlfreitas
+ * @version 1.0.1
+ */
 @Service
 @RequiredArgsConstructor
 public class TripChatService {
@@ -19,6 +26,14 @@ public class TripChatService {
     private final TripInfoExtractionService tripInfoExtractionService;
     private final WeatherService weatherService;
 
+    /**
+     * chatWithGPT is a method that interacts with the ChatGPT API to provide travel-related suggestions
+     * based on the user's conversation history. It extracts trip information, including locations and dates,
+     * and generates a personalized response using the ChatGPT model.
+     *
+     * @param conversationId The ID of the conversation to retrieve messages from.
+     * @return A string response from the ChatGPT model.
+     */
     public String chatWithGPT(Long conversationId) {
 
         List<MessageView> messages = conversationService.getConversationMessages(conversationId);
@@ -84,6 +99,13 @@ public class TripChatService {
         return chatGPTClient.getChatResponse(prompt.toString());
     }
 
+    /**
+     * buildPromptFromMessages is a helper method that constructs a prompt string
+     * from a list of messages. It concatenates the content of each message into a single string.
+     *
+     * @param messages A list of MessageView objects representing the conversation history.
+     * @return A string representing the concatenated content of the messages.
+     */
     private String buildPromptFromMessages(List<MessageView> messages) {
         StringBuilder prompt = new StringBuilder();
         for (MessageView msg : messages) {

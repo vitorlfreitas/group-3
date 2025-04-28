@@ -13,6 +13,17 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * NLPInputParser is a utility class that uses OpenNLP to parse input text
+ * and extract trip details such as locations and travel month.
+ * It initializes the necessary models for sentence detection, tokenization,
+ * and part-of-speech tagging.
+ *
+ * @author vitorlfreitas
+ * @version 1.0.1
+ * 
+ * @see <a href="https://opennlp.apache.org/models.html">OpenNLP Models</a>
+ */
 @Component
 public class NLPInputParser {
 
@@ -20,6 +31,10 @@ public class NLPInputParser {
     private TokenizerME tokenizer;
     private POSTaggerME posTagger;
 
+    /**
+     * Constructor that initializes the NLP models for sentence detection,
+     * tokenization, and part-of-speech tagging.
+     */
     public NLPInputParser() {
 
         try {
@@ -56,6 +71,12 @@ public class NLPInputParser {
         }
     }
 
+    /**
+     * Parses the input text to extract trip details such as locations and travel month.
+     *
+     * @param input the input text containing trip details
+     * @return a TripDetails object containing the extracted locations and travel month
+     */
     public TripDetails parseTripDetails(String input) {
         TripDetails details = new TripDetails();
         List<String> locations = new ArrayList<>();

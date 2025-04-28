@@ -5,6 +5,13 @@ import com.tripper.model.TripChecklistSection;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * GPTChecklistParser is a utility class that parses the response from GPT into structured sections.
+ * It identifies city names and organizes the checklist items accordingly.
+ *
+ * @author vitorlfreitas
+ * @version 1.0.1
+ */
 public class GPTChecklistParser {
 
     /**

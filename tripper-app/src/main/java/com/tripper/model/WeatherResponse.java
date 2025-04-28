@@ -6,7 +6,14 @@ import lombok.Setter;
 import java.util.List;
 
 /**
- * This class represents a response from the OpenWeatherMap API
+ * WeatherResponse is a class that represents the response from a weather API.
+ * It contains information about the weather forecast, including the city, list of forecasts,
+ * and other related data.
+ *
+ * @author vitorlfreitas
+ * @version 1.0.1
+ * 
+ * @see <a href="https://openweathermap.org/api">OpenWeatherMap API</a>
  */
 @Setter
 @Getter

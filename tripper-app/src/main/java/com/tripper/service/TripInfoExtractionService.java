@@ -8,6 +8,14 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.regex.Pattern;
 
+/**
+ * TripInfoExtractionService is a service class that provides methods to extract trip information
+ * from user input text. It identifies locations and dates using a combination of keyword matching
+ * and regular expressions.
+ *
+ * @author vitorlfreitas
+ * @version 1.0.1
+ */
 @Service
 @RequiredArgsConstructor
 public class TripInfoExtractionService {

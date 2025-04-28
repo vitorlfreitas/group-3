@@ -9,7 +9,9 @@ import java.util.List;
  *
  * @param locations A list of strings representing the locations of the trip.
  * @param dates A list of strings representing the dates associated with the trip.
-
+ * 
+ * @author vitorlfreitas
+ * @version 1.0.1
  */
 public record TripInfo(
         List<String> locations,

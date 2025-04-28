@@ -3,14 +3,15 @@ package com.tripper.repository;
 import java.time.LocalDateTime;
 
 /**
- * JPA projection for read‑only retrieval of a message.
- * Only the columns we actually need for the chat flow.
+ * MessageView is an interface that represents a view of a message.
+ * It contains methods to retrieve the sender, content, and timestamp of the message.
+ * 
+ * @author vitorlfreitas
+ * @version 1.0.1
  */
 public interface MessageView {
 
     String getSender();
-
     String getContent();
-
     LocalDateTime getTimestamp();
 }

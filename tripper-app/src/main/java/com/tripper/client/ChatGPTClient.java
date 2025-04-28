@@ -96,11 +96,11 @@ public class ChatGPTClient {
             }
             in.close();
 
-            // Parse the response JSON using Gson library
+            // Parse the response JSON using a Gson library
             JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
             JsonArray choices = jsonResponse.getAsJsonArray("choices");
 
-            // Check if the choices array is not empty
+            // Check if the choice array is not empty
             // If not empty, get the first choice and extract the message content
             // If empty, return a default message
             if (!choices.isEmpty()) {
