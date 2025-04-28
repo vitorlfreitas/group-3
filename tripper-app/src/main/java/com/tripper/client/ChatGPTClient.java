@@ -31,19 +31,15 @@ public class ChatGPTClient {
      *
      * @param conversationContext The context of the conversation to send to the API.
      * @return The response from the API.
-     * @throws IOException If an I/O error occurs during the API call.
-     * @throws URISyntaxException If the URL is malformed.
-     * @throws JsonParseException If the response JSON is malformed.
+     * @throws JsonParseException If the response, JSON is malformed.
      * @throws JsonIOException If there is an error during JSON parsing.
      * @throws JsonSyntaxException If the JSON syntax is incorrect.
      * @throws IllegalStateException If the API response is not as expected.
      * @throws NullPointerException If the API key or URL is null.
-     * @throws Exception If any other exception occurs.
      * 
      * @see <a href="https://platform.openai.com/docs/api-reference/chat/create">OpenAI API Reference</a>
      * 
      * @author vitorlfreitas
-     * @version 1.0.1
      */
     public String getChatResponse(String conversationContext) {
         try {

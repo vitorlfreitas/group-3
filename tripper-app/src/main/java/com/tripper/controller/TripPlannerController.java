@@ -1,6 +1,6 @@
 package com.tripper.controller;
 
-import com.tripper.model.TripRequest;     // <-- back to model
+import com.tripper.model.TripRequest;
 import com.tripper.dto.TripResponse;
 import com.tripper.service.TripPlannerService;
 import lombok.RequiredArgsConstructor;

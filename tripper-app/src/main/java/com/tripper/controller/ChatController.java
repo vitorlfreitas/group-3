@@ -15,17 +15,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 /**
- * ChatController handles all chat-related operations, including starting conversations, sending messages, and retrieving conversation history.
- * 
+ * ChatController handles all chat-related operations, including starting conversations, sending messages, and retrieving conversation history
  * It provides endpoints for: 
  * 1. Starting a new conversation
  * 2. Sending messages to the assistant and receiving replies
- * 3. Retrieving message history for a conversation
- * 4. Listing all conversations for a user
+ * 3. Retrieving message history for conversation
+ * 4. Listing all conversations for user
  * 5. Updating conversation titles
  * 6. Deleting conversations
- * 7. Exporting conversations as PDF files
- * 
+ * 7. Exporting conversations as PDF files.
  * This controller uses the ConversationService to manage conversations and the TripChatService to interact with the ChatGPT API.
  * 
  * @author vitorlfreitas
@@ -50,7 +48,6 @@ public class ChatController {
      * @return a map containing the conversation ID
      * @throws IllegalArgumentException if the user ID is invalid
      * @throws NullPointerException if the user ID is null
-     * @throws Exception if an error occurs while processing the request
      * 
      * @see ConversationService
      * @see TripChatService
@@ -59,7 +56,6 @@ public class ChatController {
      * @see MessageView
      * 
      * @author vitorlfreitas
-     * @version 1.0.1
      */
     @PostMapping("/start")
     public Map<String, Object> startConversation(@RequestBody Map<String, String> request) {
@@ -76,13 +72,10 @@ public class ChatController {
      * This method handles the chat interaction between the user and the assistant.
      * It saves the user's message, calls the ChatGPT API via TripChatService,
      * and saves the assistant's reply.
-     * 
-     * @param conversationId
-     * @param payload
+     *
      * @return List of MessageView objects representing the updated chat history
      * @throws IllegalArgumentException if the conversation ID is invalid or the message is empty
      * @throws NullPointerException if the user ID is null
-     * @throws Exception if an error occurs while processing the request
      * 
      * @see ConversationService
      * @see TripChatService
@@ -91,7 +84,6 @@ public class ChatController {
      * @see Conversation
      * 
      * @author vitorlfreitas
-     * @version 1.0.1
      */
     @PostMapping("/{conversationId}/message")
     public List<MessageView> chat(
@@ -123,7 +115,6 @@ public class ChatController {
      * @return List of MessageView objects representing the conversation messages
      * @throws IllegalArgumentException if the conversation ID is invalid
      * @throws NullPointerException if the conversation ID is null
-     * @throws Exception if an error occurs while processing the request
      * 
      * @see ConversationService
      * @see MessageView
@@ -131,7 +122,6 @@ public class ChatController {
      * @see Conversation
      * 
      * @author vitorlfreitas
-     * @version 1.0.1
      */
     @GetMapping("/{conversationId}/messages")
     public List<MessageView> getMessages(@PathVariable Long conversationId) {
@@ -146,7 +136,6 @@ public class ChatController {
      * @return List of Conversation objects representing the user's conversations
      * @throws IllegalArgumentException if the user ID is invalid
      * @throws NullPointerException if the user ID is null
-     * @throws Exception if an error occurs while processing the request
      * 
      * @see ConversationService
      * @see MessageView
@@ -154,7 +143,6 @@ public class ChatController {
      * @see Conversation
      *
      * @author vitorlfreitas
-     * @version 1.0.1
      */
     @GetMapping("/user/{userId}")
     public List<Conversation> getUserConversations(@PathVariable String userId) {
@@ -170,7 +158,6 @@ public class ChatController {
      * @return List of Message objects representing the user's messages in the conversation
      * @throws IllegalArgumentException if the user ID or conversation ID is invalid
      * @throws NullPointerException if the user ID or conversation ID is null
-     * @throws Exception if an error occurs while processing the request
      * 
      * @see ConversationService
      * @see MessageView
@@ -178,7 +165,6 @@ public class ChatController {
      * @see Conversation
      * 
      * @author vitorlfreitas
-     * @version 1.0.1
      */
     @GetMapping("/history")
     public List<Message> getUserMessages(
@@ -197,15 +183,12 @@ public class ChatController {
      * @return ResponseEntity indicating the result of the operation
      * @throws IllegalArgumentException if the conversation ID is invalid or the title is empty
      * @throws NullPointerException if the conversation ID or title is null
-     * @throws Exception if an error occurs while processing the request
-     * 
      * @see ConversationService
      * @see MessageView
      * @see Message
      * @see Conversation
      * 
      * @author vitorlfreitas
-     * @version 1.0.1
      */
     @PatchMapping("/{conversationId}/title")
     public ResponseEntity<?> updateConversationTitle(
@@ -226,7 +209,6 @@ public class ChatController {
      * @return ResponseEntity indicating the result of the operation
      * @throws IllegalArgumentException if the conversation ID is invalid
      * @throws NullPointerException if the conversation ID is null
-     * @throws Exception if an error occurs while processing the request
      * 
      * @see ConversationService
      * @see MessageView
@@ -234,7 +216,6 @@ public class ChatController {
      * @see Conversation
      * 
      * @author vitorlfreitas
-     * @version 1.0.1
      */
     @DeleteMapping("/{conversationId}")
     public ResponseEntity<?> deleteConversation(@PathVariable Long conversationId) {
@@ -250,7 +231,6 @@ public class ChatController {
      * @return ResponseEntity containing the PDF file
      * @throws IllegalArgumentException if the conversation ID is invalid
      * @throws NullPointerException if the conversation ID is null
-     * @throws Exception if an error occurs while processing the request
      * 
      * @see ConversationService
      * @see MessageView
@@ -258,7 +238,6 @@ public class ChatController {
      * @see Conversation
      * 
      * @author vitorlfreitas
-     * @version 1.0.1
      */
     @GetMapping("/{conversationId}/export/pdf")
     public ResponseEntity<byte[]> exportConversationAsPdf(@PathVariable Long conversationId) {

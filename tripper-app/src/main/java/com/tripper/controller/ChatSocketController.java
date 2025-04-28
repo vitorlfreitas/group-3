@@ -13,7 +13,23 @@ import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
-@Controller // Marks this class as a Spring MVC Controller
+/**
+ * This class handles WebSocket communication for chat functionality.
+ * It listens for incoming messages and sends replies back to the client.
+ * The class is annotated with @Controller, making it a Spring MVC controller.
+ * The handleChat method is invoked when a message is sent to the "/chat.send" destination.
+ * It processes the incoming message, interacts with the conversation service,
+ * and sends the response back to the client using SimpMessagingTemplate.
+ *
+ * @see ConversationService
+ * @see TripChatService
+ * @see SimpMessagingTemplate
+ * @see MessageMapper
+ *
+ * @author vitorlfreitas
+ * @version 1.0.1
+ */
+@Controller
 @RequiredArgsConstructor
 public class ChatSocketController {
 
@@ -39,12 +55,14 @@ public class ChatSocketController {
 
         // Generate a reply from GPT based on the conversation history
         String reply = tripChatService.chatWithGPT(conversationId);
+        System.out.println("Assistant Reply: " + reply);
 
         // Save the assistant's reply to the conversation
         conversationService.addMessage(conversationId, "assistant", reply, userId);
 
         // Fetch the full updated conversation history
         List<MessageView> messages = conversationService.getConversationMessages(conversationId);
+        System.out.println("Messages from DB: " + messages);
 
         /*
          * Convert the list of messages to DTOs
@@ -53,6 +71,10 @@ public class ChatSocketController {
          * defined by the OutgoingMessageDTO class.
          */
         List<OutgoingMessageDTO> dtoMessages = messageMapper.toDtoList(messages);
+
+        // Debugging
+        System.out.println("Mapped DTO messages: " + dtoMessages);
+
 
         messagingTemplate.convertAndSend("/topic/chat/" + conversationId, dtoMessages);
     }

@@ -16,7 +16,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("https://tripper-frontend.vercel.app")
+                .allowedOrigins(
+                        "https://tripper-frontend.vercel.app",
+                        "http://localhost:3000"
+                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);

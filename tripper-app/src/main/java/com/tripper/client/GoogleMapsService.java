@@ -36,7 +36,6 @@ public class GoogleMapsService {
      *
      * @param place the name of the place to validate
      * @return true if the place is valid, false otherwise
-     * @throws Exception if there is an error during the geocoding process
      * 
      * @see GeocodingApi
      * @see GeocodingResult
@@ -44,7 +43,6 @@ public class GoogleMapsService {
      * @see <a href="https://developers.google.com/maps/documentation/geocoding/start">Google Maps Geocoding API</a>
      * 
      * @author vitorlfreitas
-     * @version 1.0.1
      */
     public boolean isValidLocation(String place) {
         try {

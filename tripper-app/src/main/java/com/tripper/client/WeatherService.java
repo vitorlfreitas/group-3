@@ -44,9 +44,6 @@ public class WeatherService {
      * @param location the location for which to fetch weather data
      * @return an Optional containing the WeatherResponse if successful, or an empty Optional if an error occurs
      * @throws WebClientResponseException if the API returns an error response
-     * @throws Exception if any other error occurs during the request
-     * 
-     * @Cacheable annotation is used to cache the result of the method.
      * 
      * @see WeatherResponse
      * @see OpenWeatherProperties
@@ -54,9 +51,9 @@ public class WeatherService {
      * @see <a href="https://openweathermap.org/api">OpenWeather API</a>
      * 
      * @author vitorlfreitas
-     * @version 1.0.1
      */
-    @Cacheable(value = "weather", key = "#location.toLowerCase()", unless = "#result.isEmpty()")
+    @Cacheable(value = "forecastCache", unless = "#result == null || #result.list == null || #result.list.isEmpty()")
+
     public Optional<WeatherResponse> getForecastData(String location) {
         try {
             return Optional.ofNullable(

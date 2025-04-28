@@ -1,8 +1,14 @@
 package com.tripper.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+@Setter
+@Getter
 public class TripChecklistSection {
+
     private String cityName;
     private String weather;
     private List<String> clothing;
@@ -20,19 +26,4 @@ public class TripChecklistSection {
         this.optionalItems = optionalItems;
     }
 
-    // Getters and setters
-    public String getCityName() { return cityName; }
-    public void setCityName(String cityName) { this.cityName = cityName; }
-
-    public String getWeather() { return weather; }
-    public void setWeather(String weather) { this.weather = weather; }
-
-    public List<String> getClothing() { return clothing; }
-    public void setClothing(List<String> clothing) { this.clothing = clothing; }
-
-    public List<String> getAccessories() { return accessories; }
-    public void setAccessories(List<String> accessories) { this.accessories = accessories; }
-
-    public List<String> getOptionalItems() { return optionalItems; }
-    public void setOptionalItems(List<String> optionalItems) { this.optionalItems = optionalItems; }
 }

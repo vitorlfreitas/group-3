@@ -1,23 +1,15 @@
 package com.tripper.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+@Setter
+@Getter
 public class TripDetails {
     private List<String> locations;
     private String travelMonth;
-
-    public List<String> getLocations() {
-        return locations;
-    }
-    public void setLocations(List<String> locations) {
-        this.locations = locations;
-    }
-    public String getTravelMonth() {
-        return travelMonth;
-    }
-    public void setTravelMonth(String travelMonth) {
-        this.travelMonth = travelMonth;
-    }
 
     @Override
     public String toString() {

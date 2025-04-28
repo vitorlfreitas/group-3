@@ -6,6 +6,7 @@ import com.tripper.repository.ConversationRepository;
 import com.tripper.repository.MessageRepository;
 import com.tripper.repository.MessageView;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,7 @@ public class ConversationService {
     }
 
     // Add a new message to a conversation
+    @CacheEvict(value = "conversations", key = "#conversationId")
     public void addMessage(Long conversationId, String sender, String content, String userId) {
 
         Conversation conversation = conversationRepository.findById(conversationId).orElseThrow();
